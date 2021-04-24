@@ -2,9 +2,9 @@
 markdown: kramdown
 
 # URL of the Site
-url: 'https://manuelloraroman.github.io/'
+url: 'https://manuelloraroman.github.io/proyectorocketchat.github.io'
 # Base URL of the Site (i.e., Name of the Repository in which the Site is hosted)
-baseurl: /proyectorocketchat.github.io
+baseurl: 
 
 # Title of the Site
 title: Rocket.Chat
