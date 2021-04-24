@@ -1,0 +1,167 @@
+I"�<p>Antes de empezar a hablar sobre Rocket.chat, voy a explicar un poco el porqué utilizar Rocket.Chat con contenedores.</p>
+
+<p>En principio, los contenedores y las máquinas virtuales difieren en varios aspectos pero el principal
+es que los contenedores ofrecen una forma de virtualizar un sistema operativo haciendo que múltiples cargas de
+trabajo puedan correr en una sencilla instancia de dicho sistema operativo, mientras que las máquinas virtuales
+todo el hardware es virtualizado para correr en diferentes sistemas operativos.</p>
+
+<p>Esto hace que los contenedores sean más ágiles, veloces y que tengan mayor portabilidad. Además de los siguientes beneficios:</p>
+
+<ul>
+  <li>
+    <p>Requieren menos tiempo para iniciarse</p>
+  </li>
+  <li>
+    <p>Mejor distribución de recursos</p>
+  </li>
+  <li>
+    <p>Acceso directo al hardware</p>
+  </li>
+  <li>
+    <p>Menos redundante</p>
+  </li>
+</ul>
+
+<p>Aparte son más sencillos de orquestar, con diferentes sistemas como Kubernetes, Rancher, Openshift o Docker-compose.</p>
+
+<p>Otra de las recomendaciones es usar un sistema de monitorización, si es posible el estándar Prometheus + Grafana.</p>
+
+<h2 id="requerimientos">Requerimientos</h2>
+
+<p>Los requerimientos han sido ya tratados en dicha sección en el pre-proyecto. Puedes visualizarlo aquí:</p>
+
+<p>https://github.com/ManuelLoraRoman/ApuntesASIR/blob/master/Proyecto.md</p>
+
+<p>Lo único a comentar sería con que voy a trabajar que sería:</p>
+
+<ul>
+  <li>
+    <p>Lenovo Legion Y720</p>
+  </li>
+  <li>
+    <p>Debian 10</p>
+  </li>
+  <li>
+    <p>16 GB RAM</p>
+  </li>
+  <li>
+    <p>Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz</p>
+  </li>
+  <li>
+    <p>8 procesadores con 4 cores cada uno</p>
+  </li>
+  <li>
+    <p>1 TB disco duro</p>
+  </li>
+</ul>
+
+<h2 id="instalaciones">Instalaciones</h2>
+
+<p>Aunque hablaremos más adelante de los tipos de instalaciones que hay, vamos a
+exponer de manera breve los diferentes tipos que hay:</p>
+
+<ul>
+  <li>Ubuntu + Snap</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo apt-get install snapd
+
+sudo snap install rocketchat-server
+</code></pre></div></div>
+
+<p>Una vez hecho esto, tendríamos desplegado en nuestro <em>localhost</em> Rocket.chat y podremos configurarlo.</p>
+
+<p>Snap actualiza de manera automática cuando hay una nueva version de Rocket.Chat y suele ser una opción más segura ya que 
+tanto Rocket.Chat y sus dependencias están separadas del sistema.</p>
+
+<ul>
+  <li>Despliegue en PaaS</li>
+</ul>
+
+<p>Las recomendadas serían <em>SandStorm</em> y <em>Cloudron</em> pero prácticamente se puede desplegar en cualquier entorno,
+desde <em>Amazon Web Services</em> hasta en <em>Digital Ocean</em> entre otros.</p>
+
+<ul>
+  <li>
+    <p>Herramientas de automatización</p>
+
+    <ul>
+      <li>
+        <p><a href="https://docs.rocket.chat/installation/automation-tools/ansible">Ansible</a></p>
+      </li>
+      <li>
+        <p><a href="https://docs.rocket.chat/installation/automation-tools/openshift">OpenShift</a></p>
+      </li>
+      <li>
+        <p><a href="https://docs.rocket.chat/installation/automation-tools/helm-chart">Kubernetes + Helm</a></p>
+      </li>
+      <li>
+        <p><a href="https://docs.rocket.chat/installation/automation-tools/vagrant">Vagrant</a></p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Instalación manual</p>
+
+    <ul>
+      <li>
+        <p>CentOS</p>
+      </li>
+      <li>
+        <p>Debian</p>
+      </li>
+      <li>
+        <p>RedHat</p>
+      </li>
+      <li>
+        <p>Ubuntu</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>Prácticamente, es posible instalar el servidor de Rocket.Chat en diferentes entornos.</p>
+
+<ul>
+  <li>Contenedores Docker</li>
+</ul>
+
+<p>Hemos hablado anteriormente de esta opción.</p>
+
+<ul>
+  <li>
+    <p>Métodos no oficiales</p>
+
+    <ul>
+      <li>
+        <p>FreeBSD</p>
+      </li>
+      <li>
+        <p>Windows 10 / Windows Server</p>
+      </li>
+      <li>
+        <p>Kali</p>
+      </li>
+      <li>
+        <p>OpenSUSE</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>Los métodos anteriormente comentados en los otros puntos, están respaldados por Rocket.Chat.</p>
+
+<p>Pero es posible instalar el servidor en alguno de estos sistemas, pero no se puede asegurar que funcionen o que se actualicen las funcionalidades.</p>
+
+<p>Comentados todos los métodos de instalación, vamos a desarrollar nuestro ejercicio con contenedores Docker. Se ajustan
+bien a nuestro escenario y disponen de la portabilidad que buscamos.</p>
+
+<p>Ahora pasaremos al siguiente punto, que es la documentación:</p>
+
+<div align="right">
+
+ <span style="color:blue" onclick="document.location.href = 'systemd-post'; return false">Documentación &gt;</span>
+
+</div>
+
+:ET
