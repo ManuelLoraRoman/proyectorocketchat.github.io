@@ -1,0 +1,702 @@
+I"�<p class="message">Rocket.Chat es una herramienta que permite de manera segura, mantener los datos y las comunicaciones centralizadas.</p>
+
+<h2 id="recomendaciones">Recomendaciones</h2>
+
+<p>Antes de empezar a hablar sobre Rocket.chat, voy a explicar un poco el porqué utilizar Rocket.Chat con contenedores.</p>
+
+<p>En principio, los contenedores y las máquinas virtuales difieren en varios aspectos pero el principal
+es que los contenedores ofrecen una forma de virtualizar un sistema operativo haciendo que múltiples cargas de
+trabajo puedan correr en una sencilla instancia de dicho sistema operativo, mientras que las máquinas virtuales
+todo el hardware es virtualizado para correr en diferentes sistemas operativos.</p>
+
+<p>Esto hace que los contenedores sean más ágiles, veloces y que tengan mayor portabilidad. Además de los siguientes beneficios:</p>
+
+<ul>
+  <li>
+    <p>Requieren menos tiempo para iniciarse</p>
+  </li>
+  <li>
+    <p>Mejor distribución de recursos</p>
+  </li>
+  <li>
+    <p>Acceso directo al hardware</p>
+  </li>
+  <li>
+    <p>Menos redundante</p>
+  </li>
+</ul>
+
+<p>Aparte son más sencillos de orquestar, con diferentes sistemas como Kubernetes, Rancher, Openshift o Docker-compose.</p>
+
+<p>Otra de las recomendaciones es usar un sistema de monitorización, si es posible el estándar Prometheus + Grafana.</p>
+
+<h2 id="requerimientos">Requerimientos</h2>
+
+<p>Los requerimientos han sido ya tratados en dicha sección en el pre-proyecto. Puedes visualizarlo aquí:</p>
+
+<p>https://github.com/ManuelLoraRoman/ApuntesASIR/blob/master/Proyecto.md</p>
+
+<p>Lo único a comentar sería con que voy a trabajar que sería:</p>
+
+<ul>
+  <li>
+    <p>Lenovo Legion Y720</p>
+  </li>
+  <li>
+    <p>Debian 10</p>
+  </li>
+  <li>
+    <p>16 GB RAM</p>
+  </li>
+  <li>
+    <p>Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz</p>
+  </li>
+  <li>
+    <p>8 procesadores con 4 cores cada uno</p>
+  </li>
+  <li>
+    <p>1 TB disco duro</p>
+  </li>
+</ul>
+
+<h2 id="instalaciones">Instalaciones</h2>
+
+<p>Existen varios tipos de instalaciones para Rocket.Chat. Veremos algunos de ellos, y elegiremos cual es el más adecuado.</p>
+
+<ol>
+  <li>Ubuntu + Snap</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="code"><pre><span class="nx">sudo</span> <span class="nx">apt</span><span class="o">-</span><span class="kd">get</span> <span class="nx">install</span> <span class="nx">snapd</span>
+
+<span class="nx">sudo</span> <span class="nx">snap</span> <span class="nx">install</span> <span class="nx">rocketchat</span><span class="o">-</span><span class="nx">server</span>   
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>Una vez hecho esto, tendríamos desplegado en nuestro <em>localhost</em> Rocket.chat y podremos configurarlo.</p>
+
+<p>Snap actualiza de manera automática cuando hay una nueva version de Rocket.Chat y suele ser una opción más segura ya que tanto Rocket.Chat y sus dependencias están separadas del sistema.</p>
+
+<ol>
+  <li>
+    <p>Despliegue en PaaS</p>
+
+    <p>Las recomendadas serían <em>SandStorm</em> y <em>Cloudron</em> pero prácticamente se puede desplegar en cualquier entorno,
+desde <em>Amazon Web Services</em> hasta en <em>Digital Ocean</em> entre otros.</p>
+  </li>
+  <li>
+    <p>Herramientas de automatización</p>
+
+    <p>Es posible instalar el servidor con las siguientes herramientas:</p>
+
+    <ul>
+      <li>
+        <p><a href="https://docs.rocket.chat/installation/automation-tools/ansible">Ansible</a></p>
+      </li>
+      <li>
+        <p><a href="https://docs.rocket.chat/installation/automation-tools/openshift">OpenShift</a></p>
+      </li>
+      <li>
+        <p><a href="https://docs.rocket.chat/installation/automation-tools/helm-chart">Kubernetes + Helm</a></p>
+      </li>
+      <li>
+        <p><a href="https://docs.rocket.chat/installation/automation-tools/vagrant">Vagrant</a></p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Instalación manual</p>
+
+    <p>Prácticamente, es posible instalar el servidor de Rocket.Chat en diferentes entornos. Algunos de ellos son:</p>
+
+    <ul>
+      <li>
+        <p>CentOS</p>
+      </li>
+      <li>
+        <p>Debian</p>
+      </li>
+      <li>
+        <p>RedHat</p>
+      </li>
+      <li>
+        <p>Ubuntu</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Contenedores Docker</p>
+
+    <p>Hemos hablado anteriormente de esta opción.</p>
+  </li>
+  <li>
+    <p>Métodos No-oficiales</p>
+
+    <p>Los métodos anteriormente comentados, están respaldados por la Rocket.Chat. Es posible instalar el servidor
+en alguno de estos sistemas, pero no se puede asegurar que funcionen o que se actualicen las funcionalidades.
+Por comentar algunas, tenemos:</p>
+
+    <ul>
+      <li>
+        <p>FreeBSD</p>
+      </li>
+      <li>
+        <p>Windows 10 / Windows Server</p>
+      </li>
+      <li>
+        <p>Kali</p>
+      </li>
+      <li>
+        <p>OpenSUSE</p>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<p>Comentados todos los métodos de instalación, vamos a desarrollar nuestro ejercicio con contenedores Docker. Se ajustan
+bien a nuestro escenario y disponen de la portabilidad que buscamos.</p>
+
+<h2 id="documentación-sobre-contenedores-docker-y-rocketchat">Documentación sobre contenedores Docker y Rocket.Chat</h2>
+
+<p>Rocket.Chat dispone de tres imágenes oficiales, siendo la versión <em>stable</em> la que en principio vamos a utilizar.</p>
+
+<p>Simplemente, para bajarse la imagen, debemos ejecutar lo siguiente:</p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+</pre></td><td class="code"><pre><span class="nx">docker</span> <span class="nx">pull</span> <span class="nx">rocket</span><span class="p">.</span><span class="nx">chat</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>En caso de querer ejecutar Rocket.Chat sobre <em>systemd</em> vamos a seguir los siguientes pasos:</p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+</pre></td><td class="code"><pre><span class="nx">docker</span> <span class="nx">network</span> <span class="nx">create</span> <span class="nx">rocketchat_default</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>Crearemos a continuación dos servicios: el servicio de mongo y el servicio de Rocket.Chat.</p>
+
+<ul>
+  <li>mongo.service</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre></td><td class="code"><pre><span class="p">[</span><span class="nx">Unit</span><span class="p">]</span>
+<span class="nx">Description</span><span class="o">=</span><span class="nx">mongo</span>
+<span class="nx">Requires</span><span class="o">=</span><span class="nx">docker</span><span class="p">.</span><span class="nx">service</span>
+<span class="nx">After</span><span class="o">=</span><span class="nx">docker</span><span class="p">.</span><span class="nx">service</span>
+
+<span class="p">[</span><span class="nx">Service</span><span class="p">]</span>
+<span class="nx">EnvironmentFile</span><span class="o">=</span><span class="sr">/etc/</span><span class="nx">environment</span>
+<span class="nx">User</span><span class="o">=</span><span class="nx">dockeruser</span>
+<span class="nx">Restart</span><span class="o">=</span><span class="nx">always</span>
+<span class="nx">TimeoutStartSec</span><span class="o">=</span><span class="mi">0</span>
+<span class="nx">ExecStartPre</span><span class="o">=-</span><span class="sr">/usr/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">docker</span> <span class="nx">kill</span> <span class="nx">mongo</span>
+<span class="nx">ExecStartPre</span><span class="o">=-</span><span class="sr">/usr/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">docker</span> <span class="nx">rm</span> <span class="nx">mongo</span>
+<span class="nx">ExecStartPre</span><span class="o">=-</span><span class="sr">/usr/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">docker</span> <span class="nx">pull</span> <span class="nx">mongo</span><span class="p">:</span><span class="mf">3.2</span>
+
+
+<span class="nx">ExecStart</span><span class="o">=</span><span class="sr">/usr/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">docker</span> <span class="nx">run</span> <span class="o">\</span>
+    <span class="o">--</span><span class="nx">name</span> <span class="nx">mongo</span> <span class="o">\</span>
+    <span class="o">-</span><span class="nx">v</span> <span class="p">...</span><span class="o">/</span><span class="nx">path</span><span class="o">/</span><span class="nx">to</span><span class="o">/</span><span class="nx">data</span><span class="o">/</span><span class="nx">db</span><span class="p">:</span><span class="o">/</span><span class="nx">data</span><span class="o">/</span><span class="nx">db</span> <span class="o">\</span>
+    <span class="o">-</span><span class="nx">v</span> <span class="p">...</span><span class="o">/</span><span class="nx">path</span><span class="o">/</span><span class="nx">to</span><span class="o">/</span><span class="nx">data</span><span class="o">/</span><span class="nx">dump</span><span class="p">:</span><span class="o">/</span><span class="nx">data</span><span class="o">/</span><span class="nx">dump</span> <span class="err">\</span> <span class="o">&lt;--</span><span class="nx">optional</span>
+    <span class="o">--</span><span class="nx">net</span><span class="o">=</span><span class="nx">rocketchat_default</span> <span class="o">\</span>
+    <span class="nx">mongo</span><span class="p">:</span><span class="mf">3.2</span> <span class="o">\</span>
+    <span class="nx">mongod</span> <span class="o">--</span><span class="nx">smallfiles</span> <span class="o">--</span><span class="nx">oplogSize</span> <span class="mi">128</span> <span class="o">--</span><span class="nx">replSet</span> <span class="nx">rs0</span> <span class="o">--</span><span class="nx">storageEngine</span><span class="o">=</span><span class="nx">mmapv1</span>
+
+<span class="nx">ExecStop</span><span class="o">=-</span><span class="sr">/usr/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">docker</span> <span class="nx">kill</span> <span class="nx">mongo</span>
+<span class="nx">ExecStop</span><span class="o">=-</span><span class="sr">/usr/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">docker</span> <span class="nx">rm</span> <span class="nx">mongo</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<ul>
+  <li>rocketchat.service</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre></td><td class="code"><pre><span class="p">[</span><span class="nx">Unit</span><span class="p">]</span>
+<span class="nx">Description</span><span class="o">=</span><span class="nx">rocketchat</span>
+<span class="nx">Requires</span><span class="o">=</span><span class="nx">docker</span><span class="p">.</span><span class="nx">service</span>
+<span class="nx">Requires</span><span class="o">=</span><span class="nx">mongo</span><span class="p">.</span><span class="nx">service</span>
+<span class="nx">After</span><span class="o">=</span><span class="nx">docker</span><span class="p">.</span><span class="nx">service</span>
+<span class="nx">After</span><span class="o">=</span><span class="nx">mongo</span><span class="p">.</span><span class="nx">service</span>
+
+<span class="p">[</span><span class="nx">Service</span><span class="p">]</span>
+<span class="nx">EnvironmentFile</span><span class="o">=</span><span class="sr">/etc/</span><span class="nx">environment</span>
+<span class="nx">User</span><span class="o">=</span><span class="nx">dockeruser</span>
+<span class="nx">Restart</span><span class="o">=</span><span class="nx">always</span>
+<span class="nx">TimeoutStartSec</span><span class="o">=</span><span class="mi">0</span>
+<span class="nx">ExecStartPre</span><span class="o">=-</span><span class="sr">/usr/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">docker</span> <span class="nx">kill</span> <span class="nx">rocketchat</span>
+<span class="nx">ExecStartPre</span><span class="o">=-</span><span class="sr">/usr/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">docker</span> <span class="nx">rm</span> <span class="nx">rocketchat</span>
+<span class="nx">ExecStartPre</span><span class="o">=-</span><span class="sr">/usr/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">docker</span> <span class="nx">pull</span> <span class="nx">rocketchat</span><span class="o">/</span><span class="nx">rocket</span><span class="p">.</span><span class="nx">chat</span><span class="p">:</span><span class="nx">latest</span>
+
+<span class="nx">ExecStart</span><span class="o">=</span><span class="sr">/usr/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">docker</span> <span class="nx">run</span> <span class="o">\</span>
+    <span class="o">--</span><span class="nx">name</span> <span class="nx">rocketchat</span> <span class="o">\</span>
+    <span class="o">-</span><span class="nx">v</span> <span class="p">...</span><span class="o">/</span><span class="nx">path</span><span class="o">/</span><span class="nx">to</span><span class="o">/</span><span class="nx">uploads</span><span class="p">:</span><span class="o">/</span><span class="nx">app</span><span class="o">/</span><span class="nx">uploads</span> <span class="o">\</span>
+    <span class="o">-</span><span class="nx">e</span> <span class="nx">MONGO_OPLOG_URL</span><span class="o">=</span><span class="nx">mongodb</span><span class="p">:</span><span class="c1">//mongo:27017/local \</span>
+    <span class="o">-</span><span class="nx">e</span> <span class="nx">MONGO_URL</span><span class="o">=</span><span class="nx">mongodb</span><span class="p">:</span><span class="c1">//mongo:27017/rocketchat \</span>
+    <span class="o">-</span><span class="nx">e</span> <span class="nx">ROOT_URL</span><span class="o">=</span><span class="nx">https</span><span class="p">:</span><span class="c1">//sub.domain.xx \</span>
+    <span class="o">--</span><span class="nx">link</span> <span class="nx">mongo</span><span class="p">:</span><span class="nx">mongo</span> <span class="o">\</span>
+    <span class="o">--</span><span class="nx">net</span><span class="o">=</span><span class="nx">rocketchat_default</span> <span class="o">\</span>
+    <span class="o">--</span><span class="nx">expose</span> <span class="mi">3000</span> <span class="o">\</span>
+    <span class="nx">rocketchat</span><span class="o">/</span><span class="nx">rocket</span><span class="p">.</span><span class="nx">chat</span><span class="p">:</span><span class="nx">latest</span>
+
+<span class="nx">ExecStop</span><span class="o">=-</span><span class="sr">/usr/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">docker</span> <span class="nx">kill</span> <span class="nx">rocketchat</span>
+<span class="nx">ExecStop</span><span class="o">=-</span><span class="sr">/usr/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">docker</span> <span class="nx">rm</span> <span class="nx">rocketchat</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>Una vez creado dichos servicios, iniciamos el servicio de mongo y creamos este contenedor Docker:</p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="code"><pre><span class="nx">docker</span> <span class="nx">run</span> <span class="o">\</span>
+      <span class="o">--</span><span class="nx">name</span> <span class="nx">mongo</span><span class="o">-</span><span class="nx">init</span><span class="o">-</span><span class="nx">replica</span> <span class="o">\</span>
+      <span class="o">--</span><span class="nx">link</span> <span class="nx">mongo</span><span class="p">:</span><span class="nx">mongo</span> <span class="o">\</span>
+      <span class="o">--</span><span class="nx">rm</span> <span class="o">\</span>
+      <span class="o">--</span><span class="nx">net</span><span class="o">=</span><span class="nx">rocketchat_default</span> <span class="o">\</span>
+      <span class="nx">mongo</span><span class="p">:</span><span class="mf">3.2</span> <span class="o">\</span>
+      <span class="nx">mongo</span> <span class="nx">mongo</span><span class="o">/</span><span class="nx">rocketchat</span> <span class="o">--</span><span class="nb">eval</span> <span class="dl">"</span><span class="s2">rs.initiate({ _id: 'rs0', members: [ { _id: 0, host: 'localhost:27017' } ]})</span><span class="dl">"</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>E iniciamos el servicio de Rocket.Chat. En caso de tener un <em>proxy inverso</em>, nos debemos asegurar que está añadido
+en la red creada anteriormente. Para ello, debemos añadir la siguiente línea en el archivo
+<em>rocketchat.service</em>:</p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+</pre></td><td class="code"><pre><span class="nx">ExecStartPre</span><span class="o">=-</span><span class="sr">/usr/</span><span class="nx">bin</span><span class="o">/</span><span class="nx">docker</span> <span class="nx">network</span> <span class="nx">connect</span> <span class="nx">rocketchat_default</span> <span class="nx">Nginx</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<h2 id="documentación-sobre-docker-compose-y-rocketchat">Documentación sobre Docker-compose y Rocket.chat</h2>
+
+<p>Es posible, como hemos visto en clase, que se puede automatizar el proceso de creación de contenedores
+mediante un fichero .yml. Podremos descargar el fichero docker-compose.yml que nos proporciona la 
+plataforma de rocket.chat:</p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+</pre></td><td class="code"><pre><span class="nx">curl</span> <span class="o">-</span><span class="nx">L</span> <span class="nx">https</span><span class="p">:</span><span class="c1">//raw.githubusercontent.com/RocketChat/Rocket.Chat/develop/docker-compose.yml -o docker-compose.yml</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>Dicho archivo <em>docker-compose.yml</em> tiene el siguiente contenido:</p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+</pre></td><td class="code"><pre><span class="nx">version</span><span class="p">:</span> <span class="dl">'</span><span class="s1">2</span><span class="dl">'</span>
+
+<span class="nx">services</span><span class="p">:</span>
+  <span class="nx">rocketchat</span><span class="p">:</span>
+    <span class="nx">image</span><span class="p">:</span> <span class="nx">rocketchat</span><span class="o">/</span><span class="nx">rocket</span><span class="p">.</span><span class="nx">chat</span><span class="p">:</span><span class="nx">latest</span>
+    <span class="nx">command</span><span class="p">:</span> <span class="o">&gt;</span>
+      <span class="nx">bash</span> <span class="o">-</span><span class="nx">c</span>
+        <span class="dl">"</span><span class="s2">for i in `seq 1 30`; do
+          node main.js &amp;&amp;
+          s=$$? &amp;&amp; break || s=$$?;
+          echo </span><span class="se">\"</span><span class="s2">Tried $$i times. Waiting 5 secs...</span><span class="se">\"</span><span class="s2">;
+          sleep 5;
+        done; (exit $$s)</span><span class="dl">"</span>
+    <span class="nx">restart</span><span class="p">:</span> <span class="nx">unless</span><span class="o">-</span><span class="nx">stopped</span>
+    <span class="nx">volumes</span><span class="p">:</span>
+      <span class="o">-</span> <span class="p">.</span><span class="o">/</span><span class="nx">uploads</span><span class="p">:</span><span class="o">/</span><span class="nx">app</span><span class="o">/</span><span class="nx">uploads</span>
+    <span class="nx">environment</span><span class="p">:</span>
+      <span class="o">-</span> <span class="nx">PORT</span><span class="o">=</span><span class="mi">3000</span>
+      <span class="o">-</span> <span class="nx">ROOT_URL</span><span class="o">=</span><span class="nx">http</span><span class="p">:</span><span class="c1">//localhost:3000</span>
+      <span class="o">-</span> <span class="nx">MONGO_URL</span><span class="o">=</span><span class="nx">mongodb</span><span class="p">:</span><span class="c1">//mongo:27017/rocketchat</span>
+      <span class="o">-</span> <span class="nx">MONGO_OPLOG_URL</span><span class="o">=</span><span class="nx">mongodb</span><span class="p">:</span><span class="c1">//mongo:27017/local</span>
+      <span class="o">-</span> <span class="nx">MAIL_URL</span><span class="o">=</span><span class="nx">smtp</span><span class="p">:</span><span class="c1">//smtp.email</span>
+<span class="err">#</span>       <span class="o">-</span> <span class="nx">HTTP_PROXY</span><span class="o">=</span><span class="nx">http</span><span class="p">:</span><span class="c1">//proxy.domain.com</span>
+<span class="err">#</span>       <span class="o">-</span> <span class="nx">HTTPS_PROXY</span><span class="o">=</span><span class="nx">http</span><span class="p">:</span><span class="c1">//proxy.domain.com</span>
+    <span class="nx">depends_on</span><span class="p">:</span>
+      <span class="o">-</span> <span class="nx">mongo</span>
+    <span class="nx">ports</span><span class="p">:</span>
+      <span class="o">-</span> <span class="mi">3000</span><span class="p">:</span><span class="mi">3000</span>
+    <span class="nx">labels</span><span class="p">:</span>
+      <span class="o">-</span> <span class="dl">"</span><span class="s2">traefik.backend=rocketchat</span><span class="dl">"</span>
+      <span class="o">-</span> <span class="dl">"</span><span class="s2">traefik.frontend.rule=Host: your.domain.tld</span><span class="dl">"</span>
+
+  <span class="nx">mongo</span><span class="p">:</span>
+    <span class="nx">image</span><span class="p">:</span> <span class="nx">mongo</span><span class="p">:</span><span class="mf">4.0</span>
+    <span class="nx">restart</span><span class="p">:</span> <span class="nx">unless</span><span class="o">-</span><span class="nx">stopped</span>
+    <span class="nx">volumes</span><span class="p">:</span>
+     <span class="o">-</span> <span class="p">.</span><span class="o">/</span><span class="nx">data</span><span class="o">/</span><span class="nx">db</span><span class="p">:</span><span class="o">/</span><span class="nx">data</span><span class="o">/</span><span class="nx">db</span>
+     <span class="err">#</span><span class="o">-</span> <span class="p">.</span><span class="o">/</span><span class="nx">data</span><span class="o">/</span><span class="nx">dump</span><span class="p">:</span><span class="o">/</span><span class="nx">dump</span>
+    <span class="nx">command</span><span class="p">:</span> <span class="nx">mongod</span> <span class="o">--</span><span class="nx">smallfiles</span> <span class="o">--</span><span class="nx">oplogSize</span> <span class="mi">128</span> <span class="o">--</span><span class="nx">replSet</span> <span class="nx">rs0</span> <span class="o">--</span><span class="nx">storageEngine</span><span class="o">=</span><span class="nx">mmapv1</span>
+    <span class="nx">labels</span><span class="p">:</span>
+      <span class="o">-</span> <span class="dl">"</span><span class="s2">traefik.enable=false</span><span class="dl">"</span>
+
+  <span class="err">#</span> <span class="k">this</span> <span class="nx">container</span><span class="dl">'</span><span class="s1">s job is just run the command to initialize the replica set.
+  # it will run the command and remove himself (it will not stay running)
+  mongo-init-replica:
+    image: mongo:4.0
+    command: &gt;
+      bash -c
+        "for i in `seq 1 30`; do
+          mongo mongo/rocketchat --eval </span><span class="se">\</span><span class="s1">"
+            rs.initiate({
+              _id: </span><span class="dl">'</span><span class="nx">rs0</span><span class="dl">'</span><span class="s1">,
+              members: [ { _id: 0, host: </span><span class="dl">'</span><span class="nx">localhost</span><span class="p">:</span><span class="mi">27017</span><span class="dl">'</span><span class="s1"> } ]})</span><span class="se">\</span><span class="s1">" &amp;&amp;
+          s=$$? &amp;&amp; break || s=$$?;
+          echo </span><span class="se">\</span><span class="s1">"Tried $$i times. Waiting 5 secs...</span><span class="se">\</span><span class="s1">";
+          sleep 5;
+        done; (exit $$s)"
+    depends_on:
+      - mongo
+
+  # hubot, the popular chatbot (add the bot user first and change the password before starting this image)
+  hubot:
+    image: rocketchat/hubot-rocketchat:latest
+    restart: unless-stopped
+    environment:
+      - ROCKETCHAT_URL=rocketchat:3000
+      - ROCKETCHAT_ROOM=GENERAL
+      - ROCKETCHAT_USER=bot
+      - ROCKETCHAT_PASSWORD=botpassword
+      - BOT_NAME=bot
+  # you can add more scripts as you</span><span class="dl">'</span><span class="nx">d</span> <span class="nx">like</span> <span class="nx">here</span><span class="p">,</span> <span class="nx">they</span> <span class="nx">need</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">installable</span> <span class="nx">by</span> <span class="nx">npm</span>
+      <span class="o">-</span> <span class="nx">EXTERNAL_SCRIPTS</span><span class="o">=</span><span class="nx">hubot</span><span class="o">-</span><span class="nx">help</span><span class="p">,</span><span class="nx">hubot</span><span class="o">-</span><span class="nx">seen</span><span class="p">,</span><span class="nx">hubot</span><span class="o">-</span><span class="nx">links</span><span class="p">,</span><span class="nx">hubot</span><span class="o">-</span><span class="nx">diagnostics</span>
+    <span class="nx">depends_on</span><span class="p">:</span>
+      <span class="o">-</span> <span class="nx">rocketchat</span>
+    <span class="nx">labels</span><span class="p">:</span>
+      <span class="o">-</span> <span class="dl">"</span><span class="s2">traefik.enable=false</span><span class="dl">"</span>
+    <span class="nx">volumes</span><span class="p">:</span>
+      <span class="o">-</span> <span class="p">.</span><span class="o">/</span><span class="nx">scripts</span><span class="p">:</span><span class="o">/</span><span class="nx">home</span><span class="o">/</span><span class="nx">hubot</span><span class="o">/</span><span class="nx">scripts</span>
+  <span class="err">#</span> <span class="k">this</span> <span class="nx">is</span> <span class="nx">used</span> <span class="nx">to</span> <span class="nx">expose</span> <span class="nx">the</span> <span class="nx">hubot</span> <span class="nx">port</span> <span class="k">for</span> <span class="nx">notifications</span> <span class="nx">on</span> <span class="nx">the</span> <span class="nx">host</span> <span class="nx">on</span> <span class="nx">port</span> <span class="mi">3001</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nx">g</span><span class="p">.</span> <span class="k">for</span> <span class="nx">hubot</span><span class="o">-</span><span class="nx">jenkins</span><span class="o">-</span><span class="nx">notifier</span>
+    <span class="nx">ports</span><span class="p">:</span>
+      <span class="o">-</span> <span class="mi">3001</span><span class="p">:</span><span class="mi">8080</span>
+
+  <span class="err">#</span><span class="nx">traefik</span><span class="p">:</span>
+  <span class="err">#</span>  <span class="nx">image</span><span class="p">:</span> <span class="nx">traefik</span><span class="p">:</span><span class="nx">latest</span>
+  <span class="err">#</span>  <span class="nx">restart</span><span class="p">:</span> <span class="nx">unless</span><span class="o">-</span><span class="nx">stopped</span>
+  <span class="err">#</span>  <span class="nx">command</span><span class="p">:</span> <span class="o">&gt;</span>
+  <span class="err">#</span>    <span class="nx">traefik</span>
+  <span class="err">#</span>     <span class="o">--</span><span class="nx">docker</span>
+  <span class="err">#</span>     <span class="o">--</span><span class="nx">acme</span><span class="o">=</span><span class="kc">true</span>
+  <span class="err">#</span>     <span class="o">--</span><span class="nx">acme</span><span class="p">.</span><span class="nx">domains</span><span class="o">=</span><span class="dl">'</span><span class="s1">your.domain.tld</span><span class="dl">'</span>
+  <span class="err">#</span>     <span class="o">--</span><span class="nx">acme</span><span class="p">.</span><span class="nx">email</span><span class="o">=</span><span class="dl">'</span><span class="s1">your@email.tld</span><span class="dl">'</span>
+  <span class="err">#</span>     <span class="o">--</span><span class="nx">acme</span><span class="p">.</span><span class="nx">entrypoint</span><span class="o">=</span><span class="nx">https</span>
+  <span class="err">#</span>     <span class="o">--</span><span class="nx">acme</span><span class="p">.</span><span class="nx">storagefile</span><span class="o">=</span><span class="nx">acme</span><span class="p">.</span><span class="nx">json</span>
+  <span class="err">#</span>     <span class="o">--</span><span class="nx">defaultentrypoints</span><span class="o">=</span><span class="nx">http</span>
+  <span class="err">#</span>     <span class="o">--</span><span class="nx">defaultentrypoints</span><span class="o">=</span><span class="nx">https</span>
+  <span class="err">#</span>     <span class="o">--</span><span class="nx">entryPoints</span><span class="o">=</span><span class="dl">'</span><span class="s1">Name:http Address::80 Redirect.EntryPoint:https</span><span class="dl">'</span>
+  <span class="err">#</span>     <span class="o">--</span><span class="nx">entryPoints</span><span class="o">=</span><span class="dl">'</span><span class="s1">Name:https Address::443 TLS.Certificates:</span><span class="dl">'</span>
+  <span class="err">#</span>  <span class="nx">ports</span><span class="p">:</span>
+  <span class="err">#</span>    <span class="o">-</span> <span class="mi">80</span><span class="p">:</span><span class="mi">80</span>
+  <span class="err">#</span>    <span class="o">-</span> <span class="mi">443</span><span class="p">:</span><span class="mi">443</span>
+  <span class="err">#</span>  <span class="nx">volumes</span><span class="p">:</span>
+  <span class="err">#</span>    <span class="o">-</span> <span class="sr">/var/</span><span class="nx">run</span><span class="o">/</span><span class="nx">docker</span><span class="p">.</span><span class="nx">sock</span><span class="p">:</span><span class="o">/</span><span class="kd">var</span><span class="sr">/run/</span><span class="nx">docker</span><span class="p">.</span><span class="nx">sock</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>Este fichero realizará lo siguiente:</p>
+
+<ul>
+  <li>
+    <p>Inicia el servicio llamado <em>mongo</em>.</p>
+  </li>
+  <li>
+    <p>Inicia el servicio llamado <em>mongo-init-replica</em> que esperará a que el servicio de mongo esté listo,
+para conectarse a él e inicializarlo.</p>
+  </li>
+  <li>
+    <p>Por último, inicia el servicio de Rocket.Chat, que al igual que el anterior servicio, esperará a que
+<em>mongo</em> esté listo.</p>
+  </li>
+</ul>
+
+<p>Para iniciar dicho docker-compose con la instrucción <em>docker-compose up -d</em> y ya tendríamos corriendo
+nuestra aplicación Rocket.chat.</p>
+
+<p>En caso de querer manejar logs y demás, podemos descomentar las líneas del montaje de volúmenes.</p>
+
+<p>Es posible intalar Rocket.Chat en alta disponibilidad con un replicaset de mongodb como backend, pero
+esta es una opción a tener en cuenta más adelante.</p>
+
+<h2 id="conexión-usuario">Conexión usuario</h2>
+
+<p>El usuario de la aplicación puede conectarse a través de 3 clientes diferentes:</p>
+
+<ol>
+  <li>
+    <p>Mediante navegador web</p>
+
+    <p>Para conectarse a un servidor de Rocket.Chat, buscar la dirección donde se aloje dicha aplicación, 
+introducir sus credenciales y seguidamente, ya estaremos como miembros del servidor.</p>
+  </li>
+  <li>
+    <p>Mediante la aplicación de escritorio</p>
+
+    <p>Mismo funcionamiento que el anterior, salvo que se realizará todo desde la aplicación descargada
+<a href="https://rocket.chat/install">aquí</a>.</p>
+
+    <p>Mediante la aplicación de escritorio, uno se puede conectar a varios servidores. Simplemente, pulsar
+el icono <em>+</em> para añadir un servidor nuevo.</p>
+  </li>
+  <li>
+    <p>Mediante la app móvil</p>
+  </li>
+</ol>
+
+<h2 id="conexión-y-opciones-de-administrador">Conexión y opciones de administrador</h2>
+
+<p>Rocket.Chat permite administrar la aplicación, cambiado las diferentes opciones que esta dispone.
+Ahora iré comentando una a una, todas las características que tiene y parándome a desarrollar las
+más interesantes:</p>
+
+<ul>
+  <li>Permitir el uso de certificados autofirmados e inválidos.</li>
+</ul>
+
+<p>Solo para validar mediante link y para previsualizaciones.</p>
+
+<ul>
+  <li>Permitir el uso de Bugsnag API Key</li>
+</ul>
+
+<p>(Detección y corrección de Bugs)</p>
+
+<ul>
+  <li>Prefijos CDN para JS/CSS u otros</li>
+</ul>
+
+<p>Se puede configurar un prefijo CDN de donde cargará el contenido de JS/CSS</p>
+
+<ul>
+  <li>Habilitar salas favoritas</li>
+</ul>
+
+<p>Permitirá a los usuarios el que puedan colocar en favoritos las diferentes salas públicas o privadas.</p>
+
+<ul>
+  <li>Canal por defecto</li>
+</ul>
+
+<p>Una vez un usuario se conecte al servidor, este entrará en dicho canal de manera predeterminada. Si el
+campo está vacío, o tiene un canal inválido, el usuario será dirigido a la página principal del servidor.</p>
+
+<ul>
+  <li>Forzar deshabilitación de OpLog para Caché</li>
+</ul>
+
+<p>No se usará OpLog para sincronizar la caché incluso si está habilitada dicha opción.</p>
+
+<ul>
+  <li>Forzar SSL</li>
+</ul>
+
+<p>Esta opción no la usaremos, porque para eso tenemos el proxy inverso que redireccionará a https.</p>
+
+<ul>
+  <li>
+    <p>Uso de Google Tag Manager ID</p>
+  </li>
+  <li>
+    <p>Lenguaje</p>
+  </li>
+  <li>
+    <p>Reinicio</p>
+  </li>
+  <li>
+    <p>Contenido del fichero Robots.txt</p>
+  </li>
+</ul>
+
+<p>Permite cambiar el contenido de dicho fichero, para ayudar a indexar de manera correcta el servidor en 
+diferentes motores de búsqueda.</p>
+
+<ul>
+  <li>Mostrar Opciones Wizard</li>
+</ul>
+
+<p>Se recomienda no tocar esta opción ya que puede hacer que se bloquee un servidor.</p>
+
+<ul>
+  <li>
+    <p>Nombre del sitio</p>
+  </li>
+  <li>
+    <p>URL del sitio</p>
+  </li>
+  <li>
+    <p>Guardar último mensaje de cada sala</p>
+  </li>
+</ul>
+
+<p>Esto permitirá ver dichos mensajes en la barra lateral.</p>
+
+<ul>
+  <li>
+    <p>Contador de mensajes no leídos</p>
+  </li>
+  <li>
+    <p>Contador de mensjaes no leídos para mensajes directos</p>
+  </li>
+  <li>
+    <p>Habilitar notificaciones</p>
+  </li>
+</ul>
+
+<p>Y otras tantas características que tratan de la API RESTful u integración de Iframe.</p>
+
+<h2 id="hub">HUB</h2>
+
+<h2 id="bibliografía">Bibliografía</h2>
+
+<ul>
+  <li>www.blackblaze.com/blog/vm-vs-containers/</li>
+</ul>
+
+<hr />
+:ET

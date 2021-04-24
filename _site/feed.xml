@@ -1,4 +1,141 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-03-29T20:37:57+02:00</updated><id>/feed.xml</id><title type="html">What A Theme</title><subtitle>A customizable Jekyll portfolio theme</subtitle><entry><title type="html">Sample Post</title><link href="/blog/sample-post" rel="alternate" type="text/html" title="Sample Post" /><published>2020-04-24T00:00:00+02:00</published><updated>2020-04-24T00:00:00+02:00</updated><id>/blog/sample-post</id><content type="html" xml:base="/blog/sample-post">&lt;p&gt;This post will show you how the content will look like in the post pages and how the headlines, quotes and quotes will be represented. Jekyll is mainly used to write simple markdown and after that it renders out a static pages, so you need to know the basics of writing markdown for that.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-04-24T11:08:35+02:00</updated><id>/feed.xml</id><title type="html">Rocket.Chat</title><subtitle>TFG para el curso de ASIR en el IES Gonzalo Nazareno</subtitle><entry><title type="html">Instalación de Rocket.Chat via systemd</title><link href="/blog/systemd-post" rel="alternate" type="text/html" title="Instalación de Rocket.Chat via systemd" /><published>2021-04-18T00:00:00+02:00</published><updated>2021-04-18T00:00:00+02:00</updated><id>/blog/systemd-post</id><content type="html" xml:base="/blog/systemd-post">&lt;p&gt;Rocket.Chat dispone de tres imágenes oficiales, siendo la versión &lt;em&gt;stable&lt;/em&gt; la que en principio 
+vamos a utilizar.&lt;/p&gt;
+
+&lt;p&gt;Para bajarse alguna de las imagénes, vamos a ejecutar lo siguiente:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker pull rocket.chat
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;br /&gt;
+Demo de la descarga:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/descarga-imagen.gif&quot; width=&quot;480&quot; height=&quot;259&quot; frameborder=&quot;0&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Una vez bajada dicha imagen, en caso de querer ejecutar Rocket.Chat sobre &lt;em&gt;systemd&lt;/em&gt; vamos a seguir los
+siguientes pasos:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Primero creamos una red en Docker:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker network create rocketchat_default
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Después, creamos dos servicios: el primero será el servicio para Mongodb y el otro, el servicio de
+Rocket.Chat.&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;mongo.service&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  [Unit]
+  Description=mongo
+  Requires=docker.service
+  After=docker.service
+	
+  [Service]
+  EnvironmentFile=/etc/mongo				&amp;lt;-- ficheros del servicio
+  User=manuel
+  Restart=always
+  TimeoutStartSec=0
+  ExecStartPre=-/usr/bin/docker kill mongo
+  ExecStartPre=-/usr/bin/docker rm mongo
+  ExecStartPre=-/usr/bin/docker pull mongo:3.2
+	
+	
+  ExecStart=/usr/bin/docker run \
+      --name mongo \
+      -v /media/manuel/Datos1/PROYECTO/mongo:/data/db \		&amp;lt;-- ruta del volumen para Mongodb
+      --net=rocketchat_default \
+      mongo:3.2 \
+      mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
+	
+  ExecStop=-/usr/bin/docker kill mongo
+  ExecStop=-/usr/bin/docker rm mongo
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+    &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;rocketchat.service&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  [Unit]
+  Description=rocketchat
+  Requires=docker.service
+  Requires=mongo.service
+  After=docker.service
+  After=mongo.service
+	
+  [Service]
+  EnvironmentFile=/etc/rocketchat				&amp;lt;-- ficheros del servicio
+  User=manuel						
+  Restart=always
+  TimeoutStartSec=0
+  ExecStartPre=-/usr/bin/docker kill rocketchat
+  ExecStartPre=-/usr/bin/docker rm rocketchat
+  ExecStartPre=-/usr/bin/docker pull rocketchat/rocket.chat:latest
+	
+  ExecStart=/usr/bin/docker run \
+      --name rocketchat \
+      -v /media/manuel/Datos1/PROYECTO/rocketchat:/app/uploads \	&amp;lt;-- donde subir ficheros
+      -e MONGO_OPLOG_URL=mongodb://mongo:27017/local \
+      -e MONGO_URL=mongodb://mongo:27017/rocketchat \
+      -e ROOT_URL=https://sub.domain.xx \
+      --link mongo:mongo \
+      --net=rocketchat_default \
+      --expose 3000 \
+      rocketchat/rocket.chat:latest
+	
+  ExecStop=-/usr/bin/docker kill rocketchat
+  ExecStop=-/usr/bin/docker rm rocketchat
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+    &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Creados ambos servicios, vamos a iniciar el de Mongodb y creamos el siguiente contenedor Docker:&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run \
+      --name mongo-init-replica \
+      --link mongo:mongo \
+      --rm \
+      --net=rocketchat_default \
+      mongo:3.2 \
+      mongo mongo/rocketchat --eval &quot;rs.initiate({ _id: 'rs0', members: [ { _id: 0, host: 'localhost:27017' } ]})&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;br /&gt;
+&lt;img src=&quot;/assets/images/contenedor-mongo.gif&quot; width=&quot;480&quot; height=&quot;259&quot; frameborder=&quot;0&quot; /&gt;
+&lt;br /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Por último, vamos a iniciar el servicio de Rocket.Chat creado anteriormente:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo systemctl start rocketchat.service
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;Con esto, ya tendriamos nuestro servicio Rocket.Chat funcionando en una máquina Docker, pero funcionando
+desde systemd.&lt;/p&gt;
+
+&lt;p&gt;Como última aclaración, en caso de tener un proxy inverso, nos debemos asegurar que está añadido
+en la red creada anteriormente. Para ello, debemos añadir la siguiente línea en el archivo
+&lt;em&gt;rocketchat.service&lt;/em&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ExecStartPre=-/usr/bin/docker network connect rocketchat_default Nginx
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Ahora pasaremos a otro tipo de instalación.&lt;/p&gt;
+
+&lt;div&gt;
+
+ &lt;span style=&quot;margin-right:980px;text-align:left;color:blue&quot; onclick=&quot;document.location.href = 'introduction-post'; return false&quot;&gt;&amp;lt; Introducción&lt;/span&gt;
+
+ &lt;span style=&quot;text-align:right;color:blue&quot; onclick=&quot;document.location.href = 'dockercompose-post'; return false&quot;&gt;Instalación Docker-compose &amp;gt;&lt;/span&gt;
+
+&lt;/div&gt;</content><author><name></name></author><category term="Documentation" /><category term="post" /><category term="general" /><summary type="html">Rocket.Chat dispone de tres imágenes oficiales, siendo la versión stable la que en principio vamos a utilizar. Para bajarse alguna de las imagénes, vamos a ejecutar lo siguiente: docker pull rocket.chat Demo de la descarga: Una vez bajada dicha imagen, en caso de querer ejecutar Rocket.Chat sobre systemd vamos a seguir los siguientes pasos: Primero creamos una red en Docker: docker network create rocketchat_default Después, creamos dos servicios: el primero será el servicio para Mongodb y el otro, el servicio de Rocket.Chat. mongo.service [Unit] Description=mongo Requires=docker.service After=docker.service [Service] EnvironmentFile=/etc/mongo &amp;lt;-- ficheros del servicio User=manuel Restart=always TimeoutStartSec=0 ExecStartPre=-/usr/bin/docker kill mongo ExecStartPre=-/usr/bin/docker rm mongo ExecStartPre=-/usr/bin/docker pull mongo:3.2 ExecStart=/usr/bin/docker run \ --name mongo \ -v /media/manuel/Datos1/PROYECTO/mongo:/data/db \ &amp;lt;-- ruta del volumen para Mongodb --net=rocketchat_default \ mongo:3.2 \ mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1 ExecStop=-/usr/bin/docker kill mongo ExecStop=-/usr/bin/docker rm mongo rocketchat.service [Unit] Description=rocketchat Requires=docker.service Requires=mongo.service After=docker.service After=mongo.service [Service] EnvironmentFile=/etc/rocketchat &amp;lt;-- ficheros del servicio User=manuel Restart=always TimeoutStartSec=0 ExecStartPre=-/usr/bin/docker kill rocketchat ExecStartPre=-/usr/bin/docker rm rocketchat ExecStartPre=-/usr/bin/docker pull rocketchat/rocket.chat:latest ExecStart=/usr/bin/docker run \ --name rocketchat \ -v /media/manuel/Datos1/PROYECTO/rocketchat:/app/uploads \ &amp;lt;-- donde subir ficheros -e MONGO_OPLOG_URL=mongodb://mongo:27017/local \ -e MONGO_URL=mongodb://mongo:27017/rocketchat \ -e ROOT_URL=https://sub.domain.xx \ --link mongo:mongo \ --net=rocketchat_default \ --expose 3000 \ rocketchat/rocket.chat:latest ExecStop=-/usr/bin/docker kill rocketchat ExecStop=-/usr/bin/docker rm rocketchat Creados ambos servicios, vamos a iniciar el de Mongodb y creamos el siguiente contenedor Docker: docker run \ --name mongo-init-replica \ --link mongo:mongo \ --rm \ --net=rocketchat_default \ mongo:3.2 \ mongo mongo/rocketchat --eval &quot;rs.initiate({ _id: 'rs0', members: [ { _id: 0, host: 'localhost:27017' } ]})&quot; Por último, vamos a iniciar el servicio de Rocket.Chat creado anteriormente: sudo systemctl start rocketchat.service Con esto, ya tendriamos nuestro servicio Rocket.Chat funcionando en una máquina Docker, pero funcionando desde systemd. Como última aclaración, en caso de tener un proxy inverso, nos debemos asegurar que está añadido en la red creada anteriormente. Para ello, debemos añadir la siguiente línea en el archivo rocketchat.service: ExecStartPre=-/usr/bin/docker network connect rocketchat_default Nginx Ahora pasaremos a otro tipo de instalación. &amp;lt; Introducción Instalación Docker-compose &amp;gt;</summary></entry><entry><title type="html">Sample Post</title><link href="/blog/dockercompose-post" rel="alternate" type="text/html" title="Sample Post" /><published>2021-04-15T00:00:00+02:00</published><updated>2021-04-15T00:00:00+02:00</updated><id>/blog/dockercompose-post</id><content type="html" xml:base="/blog/dockercompose-post">&lt;p&gt;This post will show you how the content will look like in the post pages and how the headlines, quotes and quotes will be represented. Jekyll is mainly used to write simple markdown and after that it renders out a static pages, so you need to know the basics of writing markdown for that.
 For more information about writing markdown you can checkout the following markdown cheatsheets:&lt;/p&gt;
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;https://guides.github.com/features/mastering-markdown/&quot;&gt;Mastering Markdown&lt;/a&gt;&lt;/li&gt;
@@ -65,136 +202,1003 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris id finibus nisl.
 &lt;p&gt;&lt;a href=&quot;https://giphy.com/gifs/laughing-despicable-me-minions-ZqlvCTNHpqrio&quot;&gt;via GIPHY&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;YouTUbe Videos will look like:&lt;/strong&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/jTPXwbDtIpA&quot; frameborder=&quot;0&quot; allow=&quot;accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;</content><author><name></name></author><category term="sample" /><category term="post" /><category term="test" /><summary type="html">This post will show you how the content will look like in the post pages and how the headlines, quotes and quotes will be represented. Jekyll is mainly used to write simple markdown and after that it renders out a static pages, so you need to know the basics of writing markdown for that. For more information about writing markdown you can checkout the following markdown cheatsheets: Mastering Markdown Markdown Guide GitHub Flavored Markdown Spec This is the h1 text This is the h2 text This is the h3 text This is the h4 text This is the h5 text This is the h6 text Bold Text in the post will look like: This text is Bold Italic Text in the post will look like: This text is Italic Quotes on your post will look like this Codes on your post will look like this Link in the post will look like: This is a link Bullet list in the post will look like: Item 1 Item 2 Item 3 Item 4 Item 5 Number list in the post will look like: Item 1 Item 2 Item 3 Item 4 Item 5 Images in the post will look like: Normal text in the post will look like Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris id finibus nisl. Etiam in hendrerit est. Nulla non erat ac lectus interdum lobortis. Vestibulum at mi ex. Mauris nisl mi, venenatis et feugiat nec, finibus porttitor velit. Suspendisse tincidunt lobortis leo, quis tristique tellus iaculis quis. Donec eleifend pulvinar gravida. Proin non lorem eros. Donec sit amet finibus ex, eget vestibulum nunc. Ut ut enim id purus porttitor tristique. Vivamus tincidunt eleifend hendrerit. Proin metus felis, ultrices vel dui in, porta dapibus dui. Sed sagittis ex vitae dui tristique dignissim. Cras vel leo ipsum. Aenean ac neque et risus mattis accumsan. Sed ac tellus molestie, lacinia ante sit amet, convallis felis. Maecenas aliquet lectus nec euismod auctor. Donec finibus pellentesque tortor, ac efficitur metus suscipit non. Proin diam orci, blandit quis malesuada ac, efficitur a nisl. Mauris eleifend consequat blandit. Sed egestas quam et orci gravida, non euismod metus scelerisque. Curabitur venenatis pellentesque erat commodo pharetra. Fusce id ante nec ipsum fringilla auctor. In justo quam, feugiat placerat eleifend dapibus, luctus et quam. Fusce facilisis erat ut odio convallis viverra et id mauris. Sed vehicula tempus consectetur. Aliquam pharetra, purus non egestas tristique, tellus massa fringilla est, id sagittis tellus urna non mauris. Suspendisse fringilla, velit nec blandit facilisis, ligula ante imperdiet est, et placerat magna sem quis tortor. Vestibulum vitae fermentum velit, rhoncus egestas orci. Nulla at purus ut orci posuere vulputate. In eget leo diam. In congue in diam nec elementum. Suspendisse fringilla ante nulla, eu tristique orci ultrices eget. Aenean non lorem tellus. Vestibulum tempor metus sit amet tellus feugiat, sit amet consequat lacus ultricies. Donec imperdiet, lectus eget congue cursus, dolor enim finibus risus, ut molestie lorem tellus non tortor. Donec quam nibh, molestie in dapibus et, efficitur non tortor. Morbi orci tellus, mollis vel mi vitae, auctor lobortis erat. Ut gravida velit eget ligula lacinia, id rhoncus tellus gravida. Maecenas laoreet rutrum consequat. Suspendisse sed nibh dui. Curabitur dictum euismod mollis. Sed egestas libero libero, eu accumsan augue placerat non. Nunc id condimentum orci. Mauris vitae sollicitudin quam. Giphy Gifs will look like: via GIPHY YouTUbe Videos will look like:</summary></entry><entry><title type="html">How to Install and use WhatATheme?</title><link href="/blog/how-to-install-whatatheme" rel="alternate" type="text/html" title="How to Install and use WhatATheme?" /><published>2020-04-22T00:00:00+02:00</published><updated>2020-04-22T00:00:00+02:00</updated><id>/blog/how-to-install-whatatheme</id><content type="html" xml:base="/blog/how-to-install-whatatheme">&lt;h1 id=&quot;what-is-whatatheme&quot;&gt;What is WhatATheme?&lt;/h1&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;You’ll find this post in your &lt;strong&gt;&lt;em&gt;_posts&lt;/em&gt;&lt;/strong&gt; directory. Go ahead and edit it and re-build the site to see your changes. &amp;gt;You can rebuild the site in many different ways, but the most common way is to run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;bundle exec jekyll serve&lt;/code&gt;, which launches a web server and auto-regenerates your site when a file is updated.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/VfPa2c9kwhQ&quot; frameborder=&quot;0&quot; allow=&quot;accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;
+&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/jTPXwbDtIpA&quot; frameborder=&quot;0&quot; allow=&quot;accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;</content><author><name></name></author><category term="sample" /><category term="post" /><category term="test" /><summary type="html">This post will show you how the content will look like in the post pages and how the headlines, quotes and quotes will be represented. Jekyll is mainly used to write simple markdown and after that it renders out a static pages, so you need to know the basics of writing markdown for that. For more information about writing markdown you can checkout the following markdown cheatsheets: Mastering Markdown Markdown Guide GitHub Flavored Markdown Spec This is the h1 text This is the h2 text This is the h3 text This is the h4 text This is the h5 text This is the h6 text Bold Text in the post will look like: This text is Bold Italic Text in the post will look like: This text is Italic Quotes on your post will look like this Codes on your post will look like this Link in the post will look like: This is a link Bullet list in the post will look like: Item 1 Item 2 Item 3 Item 4 Item 5 Number list in the post will look like: Item 1 Item 2 Item 3 Item 4 Item 5 Images in the post will look like: Normal text in the post will look like Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris id finibus nisl. Etiam in hendrerit est. Nulla non erat ac lectus interdum lobortis. Vestibulum at mi ex. Mauris nisl mi, venenatis et feugiat nec, finibus porttitor velit. Suspendisse tincidunt lobortis leo, quis tristique tellus iaculis quis. Donec eleifend pulvinar gravida. Proin non lorem eros. Donec sit amet finibus ex, eget vestibulum nunc. Ut ut enim id purus porttitor tristique. Vivamus tincidunt eleifend hendrerit. Proin metus felis, ultrices vel dui in, porta dapibus dui. Sed sagittis ex vitae dui tristique dignissim. Cras vel leo ipsum. Aenean ac neque et risus mattis accumsan. Sed ac tellus molestie, lacinia ante sit amet, convallis felis. Maecenas aliquet lectus nec euismod auctor. Donec finibus pellentesque tortor, ac efficitur metus suscipit non. Proin diam orci, blandit quis malesuada ac, efficitur a nisl. Mauris eleifend consequat blandit. Sed egestas quam et orci gravida, non euismod metus scelerisque. Curabitur venenatis pellentesque erat commodo pharetra. Fusce id ante nec ipsum fringilla auctor. In justo quam, feugiat placerat eleifend dapibus, luctus et quam. Fusce facilisis erat ut odio convallis viverra et id mauris. Sed vehicula tempus consectetur. Aliquam pharetra, purus non egestas tristique, tellus massa fringilla est, id sagittis tellus urna non mauris. Suspendisse fringilla, velit nec blandit facilisis, ligula ante imperdiet est, et placerat magna sem quis tortor. Vestibulum vitae fermentum velit, rhoncus egestas orci. Nulla at purus ut orci posuere vulputate. In eget leo diam. In congue in diam nec elementum. Suspendisse fringilla ante nulla, eu tristique orci ultrices eget. Aenean non lorem tellus. Vestibulum tempor metus sit amet tellus feugiat, sit amet consequat lacus ultricies. Donec imperdiet, lectus eget congue cursus, dolor enim finibus risus, ut molestie lorem tellus non tortor. Donec quam nibh, molestie in dapibus et, efficitur non tortor. Morbi orci tellus, mollis vel mi vitae, auctor lobortis erat. Ut gravida velit eget ligula lacinia, id rhoncus tellus gravida. Maecenas laoreet rutrum consequat. Suspendisse sed nibh dui. Curabitur dictum euismod mollis. Sed egestas libero libero, eu accumsan augue placerat non. Nunc id condimentum orci. Mauris vitae sollicitudin quam. Giphy Gifs will look like: via GIPHY YouTUbe Videos will look like:</summary></entry><entry><title type="html">Sample Post</title><link href="/blog/research-material-post" rel="alternate" type="text/html" title="Sample Post" /><published>2021-04-15T00:00:00+02:00</published><updated>2021-04-15T00:00:00+02:00</updated><id>/blog/research-material-post</id><content type="html" xml:base="/blog/research-material-post">&lt;p&gt;This post will show you how the content will look like in the post pages and how the headlines, quotes and quotes will be represented. Jekyll is mainly used to write simple markdown and after that it renders out a static pages, so you need to know the basics of writing markdown for that.
+For more information about writing markdown you can checkout the following markdown cheatsheets:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://guides.github.com/features/mastering-markdown/&quot;&gt;Mastering Markdown&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.markdownguide.org/cheat-sheet/&quot;&gt;Markdown Guide&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.github.com/gfm/&quot;&gt;GitHub Flavored Markdown Spec&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;hr /&gt;
 
-&lt;p&gt;&lt;strong&gt;WhatATheme&lt;/strong&gt; is a customizable Jekyll Portfolio theme which supports blogging. You can use this theme in order to create an elegant, fully responsive portfolio which includes&lt;/p&gt;
+&lt;h1 id=&quot;this-is-the-h1-text&quot;&gt;This is the h1 text&lt;/h1&gt;
+&lt;h2 id=&quot;this-is-the-h2-text&quot;&gt;This is the h2 text&lt;/h2&gt;
+&lt;h3 id=&quot;this-is-the-h3-text&quot;&gt;This is the h3 text&lt;/h3&gt;
+&lt;h4 id=&quot;this-is-the-h4-text&quot;&gt;This is the h4 text&lt;/h4&gt;
+&lt;h5 id=&quot;this-is-the-h5-text&quot;&gt;This is the h5 text&lt;/h5&gt;
+&lt;h6 id=&quot;this-is-the-h6-text&quot;&gt;This is the h6 text&lt;/h6&gt;
 
-&lt;h3 id=&quot;home-page--&quot;&gt;Home Page -&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Bold Text in the post will look like:&lt;/strong&gt;&lt;br /&gt;
+&lt;strong&gt;This text is Bold&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Italic Text in the post will look like:&lt;/strong&gt;&lt;br /&gt;
+&lt;em&gt;This text is Italic&lt;/em&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Quotes on your post will look like this&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Codes on your post will look like this&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Link in the post will look like:&lt;/strong&gt;&lt;br /&gt;
+&lt;a href=&quot;#&quot;&gt;This is a link&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Bullet list in the post will look like:&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
-  &lt;li&gt;A Hero section - A section where you can outsource an image which will work as the background for the particular section; it also will include your name and a tagline which can be easily manipulated via the _config.yml file.&lt;/li&gt;
-  &lt;li&gt;An About section - A section where you can include your image and a 60 word paragraph which again you can easily manipulate using the _config.yml file.&lt;/li&gt;
-  &lt;li&gt;A Contact section - A section where you can include 3 direct ways to contact&lt;br /&gt;
-&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Ping on Messenger&lt;/code&gt;&lt;br /&gt;
-&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Send an Email&lt;/code&gt;&lt;br /&gt;
-&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Tweet on Twitter&lt;/code&gt;&lt;br /&gt;
-The contact section will also include 10 different social media buttons for your audience to follow.&lt;br /&gt;
-&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Facebook&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Twitter&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Instagram&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;LinkedIn&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GitHub&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;YouTube&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Reddit&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Behance&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Dribbble&lt;/code&gt; &amp;amp; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Spotify&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;Item 1&lt;/li&gt;
+  &lt;li&gt;Item 2&lt;/li&gt;
+  &lt;li&gt;Item 3&lt;/li&gt;
+  &lt;li&gt;Item 4&lt;/li&gt;
+  &lt;li&gt;Item 5&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&quot;blog--&quot;&gt;Blog -&lt;/h3&gt;
-&lt;p&gt;The blog includes a horizontal card list where the latest articles are fetched from the _posts folder automatically in top-down format. It also includes an instant search box which matches your query from the title, description &amp;amp; content of your post and shows the result as soon as you type.&lt;br /&gt;
-The blog card includes&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;Post Title&lt;/li&gt;
-  &lt;li&gt;300 words from the content of the post&lt;/li&gt;
-  &lt;li&gt;The publish date&lt;/li&gt;
-  &lt;li&gt;The time which will be required to read the post.&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Number list in the post will look like:&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Item 1&lt;/li&gt;
+  &lt;li&gt;Item 2&lt;/li&gt;
+  &lt;li&gt;Item 3&lt;/li&gt;
+  &lt;li&gt;Item 4&lt;/li&gt;
+  &lt;li&gt;Item 5&lt;/li&gt;
+&lt;/ol&gt;
 
-&lt;h3 id=&quot;projects--&quot;&gt;Projects -&lt;/h3&gt;
-&lt;p&gt;The Projects page will include all the projects from the &lt;strong&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;projects.yml&lt;/code&gt;&lt;/strong&gt; file which is present in the _data folder.&lt;br /&gt;
-Projects will be showcased in a card-list format where each card will contain&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;An image related to the project&lt;/li&gt;
-  &lt;li&gt;A Project Title&lt;/li&gt;
-  &lt;li&gt;A Project Description of about 80 words&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Images in the post will look like:&lt;/strong&gt;&lt;br /&gt;
+&lt;img src=&quot;/WhatATheme/assets/images/1280x720%20Placeholder.png&quot; alt=&quot;Test Image&quot; /&gt;&lt;/p&gt;
 
-&lt;h3 id=&quot;footer--&quot;&gt;Footer -&lt;/h3&gt;
-&lt;p&gt;The footer includes&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;A small about the author widget which show the same &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Author Image&lt;/code&gt; as mentioned in the about section of the Home page which includes &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Name of the Author&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Around 75 words about the author&lt;/code&gt;.&lt;/li&gt;
-  &lt;li&gt;A more link widget which includes a link to any extra page that you’ve created and a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Subscribe via RSS&lt;/code&gt; link.&lt;/li&gt;
-  &lt;li&gt;A Recent posts widget which will include latest 3 posts.&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Normal text in the post will look like&lt;/strong&gt;&lt;br /&gt;
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris id finibus nisl. Etiam in hendrerit est. Nulla non erat ac lectus interdum lobortis. Vestibulum at mi ex. Mauris nisl mi, venenatis et feugiat nec, finibus porttitor velit. Suspendisse tincidunt lobortis leo, quis tristique tellus iaculis quis. Donec eleifend pulvinar gravida. Proin non lorem eros. Donec sit amet finibus ex, eget vestibulum nunc. Ut ut enim id purus porttitor tristique. Vivamus tincidunt eleifend hendrerit. Proin metus felis, ultrices vel dui in, porta dapibus dui. Sed sagittis ex vitae dui tristique dignissim. Cras vel leo ipsum.&lt;/p&gt;
 
-&lt;h4 id=&quot;extra-features--&quot;&gt;Extra Features -&lt;/h4&gt;
-&lt;p&gt;WhatATheme comes pre installed with&lt;/p&gt;
+&lt;p&gt;Aenean ac neque et risus mattis accumsan. Sed ac tellus molestie, lacinia ante sit amet, convallis felis. Maecenas aliquet lectus nec euismod auctor. Donec finibus pellentesque tortor, ac efficitur metus suscipit non. Proin diam orci, blandit quis malesuada ac, efficitur a nisl. Mauris eleifend consequat blandit. Sed egestas quam et orci gravida, non euismod metus scelerisque. Curabitur venenatis pellentesque erat commodo pharetra. Fusce id ante nec ipsum fringilla auctor. In justo quam, feugiat placerat eleifend dapibus, luctus et quam. Fusce facilisis erat ut odio convallis viverra et id mauris. Sed vehicula tempus consectetur. Aliquam pharetra, purus non egestas tristique, tellus massa fringilla est, id sagittis tellus urna non mauris. Suspendisse fringilla, velit nec blandit facilisis, ligula ante imperdiet est, et placerat magna sem quis tortor.&lt;/p&gt;
+
+&lt;p&gt;Vestibulum vitae fermentum velit, rhoncus egestas orci. Nulla at purus ut orci posuere vulputate. In eget leo diam. In congue in diam nec elementum. Suspendisse fringilla ante nulla, eu tristique orci ultrices eget. Aenean non lorem tellus. Vestibulum tempor metus sit amet tellus feugiat, sit amet consequat lacus ultricies.&lt;/p&gt;
+
+&lt;p&gt;Donec imperdiet, lectus eget congue cursus, dolor enim finibus risus, ut molestie lorem tellus non tortor. Donec quam nibh, molestie in dapibus et, efficitur non tortor. Morbi orci tellus, mollis vel mi vitae, auctor lobortis erat. Ut gravida velit eget ligula lacinia, id rhoncus tellus gravida. Maecenas laoreet rutrum consequat. Suspendisse sed nibh dui. Curabitur dictum euismod mollis. Sed egestas libero libero, eu accumsan augue placerat non. Nunc id condimentum orci. Mauris vitae sollicitudin quam.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Giphy Gifs will look like:&lt;/strong&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;iframe src=&quot;https://giphy.com/embed/ZqlvCTNHpqrio&quot; width=&quot;480&quot; height=&quot;259&quot; frameborder=&quot;0&quot; class=&quot;giphy-embed&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;
+&lt;p&gt;&lt;a href=&quot;https://giphy.com/gifs/laughing-despicable-me-minions-ZqlvCTNHpqrio&quot;&gt;via GIPHY&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;YouTUbe Videos will look like:&lt;/strong&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/jTPXwbDtIpA&quot; frameborder=&quot;0&quot; allow=&quot;accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;</content><author><name></name></author><category term="sample" /><category term="post" /><category term="test" /><summary type="html">This post will show you how the content will look like in the post pages and how the headlines, quotes and quotes will be represented. Jekyll is mainly used to write simple markdown and after that it renders out a static pages, so you need to know the basics of writing markdown for that. For more information about writing markdown you can checkout the following markdown cheatsheets: Mastering Markdown Markdown Guide GitHub Flavored Markdown Spec This is the h1 text This is the h2 text This is the h3 text This is the h4 text This is the h5 text This is the h6 text Bold Text in the post will look like: This text is Bold Italic Text in the post will look like: This text is Italic Quotes on your post will look like this Codes on your post will look like this Link in the post will look like: This is a link Bullet list in the post will look like: Item 1 Item 2 Item 3 Item 4 Item 5 Number list in the post will look like: Item 1 Item 2 Item 3 Item 4 Item 5 Images in the post will look like: Normal text in the post will look like Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris id finibus nisl. Etiam in hendrerit est. Nulla non erat ac lectus interdum lobortis. Vestibulum at mi ex. Mauris nisl mi, venenatis et feugiat nec, finibus porttitor velit. Suspendisse tincidunt lobortis leo, quis tristique tellus iaculis quis. Donec eleifend pulvinar gravida. Proin non lorem eros. Donec sit amet finibus ex, eget vestibulum nunc. Ut ut enim id purus porttitor tristique. Vivamus tincidunt eleifend hendrerit. Proin metus felis, ultrices vel dui in, porta dapibus dui. Sed sagittis ex vitae dui tristique dignissim. Cras vel leo ipsum. Aenean ac neque et risus mattis accumsan. Sed ac tellus molestie, lacinia ante sit amet, convallis felis. Maecenas aliquet lectus nec euismod auctor. Donec finibus pellentesque tortor, ac efficitur metus suscipit non. Proin diam orci, blandit quis malesuada ac, efficitur a nisl. Mauris eleifend consequat blandit. Sed egestas quam et orci gravida, non euismod metus scelerisque. Curabitur venenatis pellentesque erat commodo pharetra. Fusce id ante nec ipsum fringilla auctor. In justo quam, feugiat placerat eleifend dapibus, luctus et quam. Fusce facilisis erat ut odio convallis viverra et id mauris. Sed vehicula tempus consectetur. Aliquam pharetra, purus non egestas tristique, tellus massa fringilla est, id sagittis tellus urna non mauris. Suspendisse fringilla, velit nec blandit facilisis, ligula ante imperdiet est, et placerat magna sem quis tortor. Vestibulum vitae fermentum velit, rhoncus egestas orci. Nulla at purus ut orci posuere vulputate. In eget leo diam. In congue in diam nec elementum. Suspendisse fringilla ante nulla, eu tristique orci ultrices eget. Aenean non lorem tellus. Vestibulum tempor metus sit amet tellus feugiat, sit amet consequat lacus ultricies. Donec imperdiet, lectus eget congue cursus, dolor enim finibus risus, ut molestie lorem tellus non tortor. Donec quam nibh, molestie in dapibus et, efficitur non tortor. Morbi orci tellus, mollis vel mi vitae, auctor lobortis erat. Ut gravida velit eget ligula lacinia, id rhoncus tellus gravida. Maecenas laoreet rutrum consequat. Suspendisse sed nibh dui. Curabitur dictum euismod mollis. Sed egestas libero libero, eu accumsan augue placerat non. Nunc id condimentum orci. Mauris vitae sollicitudin quam. Giphy Gifs will look like: via GIPHY YouTUbe Videos will look like:</summary></entry><entry><title type="html">Introducción a Rocket.Chat</title><link href="/blog/introduction-post" rel="alternate" type="text/html" title="Introducción a Rocket.Chat" /><published>2021-04-12T00:00:00+02:00</published><updated>2021-04-12T00:00:00+02:00</updated><id>/blog/introduction-post</id><content type="html" xml:base="/blog/introduction-post">&lt;p&gt;Antes de empezar a hablar sobre Rocket.chat, voy a explicar un poco el porqué utilizar Rocket.Chat con contenedores.&lt;/p&gt;
+
+&lt;p&gt;En principio, los contenedores y las máquinas virtuales difieren en varios aspectos pero el principal
+es que los contenedores ofrecen una forma de virtualizar un sistema operativo haciendo que múltiples cargas de
+trabajo puedan correr en una sencilla instancia de dicho sistema operativo, mientras que las máquinas virtuales
+todo el hardware es virtualizado para correr en diferentes sistemas operativos.&lt;/p&gt;
+
+&lt;p&gt;Esto hace que los contenedores sean más ágiles, veloces y que tengan mayor portabilidad. Además de los siguientes beneficios:&lt;/p&gt;
+
 &lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;HTML Compressor&lt;/strong&gt; - It’ll compress all the pages by removing any extra space or blank lines.&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Google Analytics&lt;/strong&gt; - A web analytics service offered by Google that tracks and reports website traffic. For more information &lt;a href=&quot;https://analytics.google.com&quot; target=&quot;blank&quot;&gt;click here&lt;/a&gt;.&lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;Disqus&lt;/strong&gt; - A worldwide blog comment hosting service for web sites and online communities that use a networked platform. For more information about Disqus &lt;a href=&quot;https://help.disqus.com/en/articles/1717053-what-is-disqus&quot; target=&quot;blank&quot;&gt;click here&lt;/a&gt;&lt;/p&gt;
-
-    &lt;p&gt;##### For more information about WhatATheme &lt;a href=&quot;https://github.com/thedevslot/WhatATheme/blob/gh-pages/README.md&quot; target=&quot;blank&quot;&gt;click here&lt;/a&gt;.&lt;/p&gt;
+    &lt;p&gt;Requieren menos tiempo para iniciarse&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Mejor distribución de recursos&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Acceso directo al hardware&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Menos redundante&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
+&lt;p&gt;Aparte son más sencillos de orquestar, con diferentes sistemas como Kubernetes, Rancher, Openshift o Docker-compose.&lt;/p&gt;
+
+&lt;p&gt;Otra de las recomendaciones es usar un sistema de monitorización, si es posible el estándar Prometheus + Grafana.&lt;/p&gt;
+
+&lt;h2 id=&quot;requerimientos&quot;&gt;Requerimientos&lt;/h2&gt;
+
+&lt;p&gt;Los requerimientos han sido ya tratados en dicha sección en el pre-proyecto. Puedes visualizarlo aquí:&lt;/p&gt;
+
+&lt;p&gt;https://github.com/ManuelLoraRoman/ApuntesASIR/blob/master/Proyecto.md&lt;/p&gt;
+
+&lt;p&gt;Lo único a comentar sería con que voy a trabajar que sería:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Lenovo Legion Y720&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Debian 10&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;16 GB RAM&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;8 procesadores con 4 cores cada uno&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;1 TB disco duro&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;instalaciones&quot;&gt;Instalaciones&lt;/h2&gt;
+
+&lt;p&gt;Aunque hablaremos más adelante de los tipos de instalaciones que hay, vamos a
+exponer de manera breve los diferentes tipos que hay:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Ubuntu + Snap&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get install snapd
+
+sudo snap install rocketchat-server
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Una vez hecho esto, tendríamos desplegado en nuestro &lt;em&gt;localhost&lt;/em&gt; Rocket.chat y podremos configurarlo.&lt;/p&gt;
+
+&lt;p&gt;Snap actualiza de manera automática cuando hay una nueva version de Rocket.Chat y suele ser una opción más segura ya que 
+tanto Rocket.Chat y sus dependencias están separadas del sistema.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Despliegue en PaaS&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Las recomendadas serían &lt;em&gt;SandStorm&lt;/em&gt; y &lt;em&gt;Cloudron&lt;/em&gt; pero prácticamente se puede desplegar en cualquier entorno,
+desde &lt;em&gt;Amazon Web Services&lt;/em&gt; hasta en &lt;em&gt;Digital Ocean&lt;/em&gt; entre otros.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Herramientas de automatización&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;a href=&quot;https://docs.rocket.chat/installation/automation-tools/ansible&quot;&gt;Ansible&lt;/a&gt;&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;a href=&quot;https://docs.rocket.chat/installation/automation-tools/openshift&quot;&gt;OpenShift&lt;/a&gt;&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;a href=&quot;https://docs.rocket.chat/installation/automation-tools/helm-chart&quot;&gt;Kubernetes + Helm&lt;/a&gt;&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;a href=&quot;https://docs.rocket.chat/installation/automation-tools/vagrant&quot;&gt;Vagrant&lt;/a&gt;&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Instalación manual&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;CentOS&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;Debian&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;RedHat&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;Ubuntu&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Prácticamente, es posible instalar el servidor de Rocket.Chat en diferentes entornos.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Contenedores Docker&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Hemos hablado anteriormente de esta opción.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Métodos no oficiales&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;FreeBSD&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;Windows 10 / Windows Server&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;Kali&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;OpenSUSE&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Los métodos anteriormente comentados en los otros puntos, están respaldados por Rocket.Chat.&lt;/p&gt;
+
+&lt;p&gt;Pero es posible instalar el servidor en alguno de estos sistemas, pero no se puede asegurar que funcionen o que se actualicen las funcionalidades.&lt;/p&gt;
+
+&lt;p&gt;Comentados todos los métodos de instalación, vamos a desarrollar nuestro ejercicio con contenedores Docker. Se ajustan
+bien a nuestro escenario y disponen de la portabilidad que buscamos.&lt;/p&gt;
+
+&lt;p&gt;Ahora pasaremos al siguiente punto, que es la documentación:&lt;/p&gt;
+
+&lt;div align=&quot;right&quot;&gt;
+
+ &lt;span style=&quot;color:blue&quot; onclick=&quot;document.location.href = 'systemd-post'; return false&quot;&gt;Documentación &amp;gt;&lt;/span&gt;
+
+&lt;/div&gt;</content><author><name></name></author><category term="Introduction" /><category term="Rocket.Chat" /><category term="Communication" /><summary type="html">Antes de empezar a hablar sobre Rocket.chat, voy a explicar un poco el porqué utilizar Rocket.Chat con contenedores. En principio, los contenedores y las máquinas virtuales difieren en varios aspectos pero el principal es que los contenedores ofrecen una forma de virtualizar un sistema operativo haciendo que múltiples cargas de trabajo puedan correr en una sencilla instancia de dicho sistema operativo, mientras que las máquinas virtuales todo el hardware es virtualizado para correr en diferentes sistemas operativos. Esto hace que los contenedores sean más ágiles, veloces y que tengan mayor portabilidad. Además de los siguientes beneficios: Requieren menos tiempo para iniciarse Mejor distribución de recursos Acceso directo al hardware Menos redundante Aparte son más sencillos de orquestar, con diferentes sistemas como Kubernetes, Rancher, Openshift o Docker-compose. Otra de las recomendaciones es usar un sistema de monitorización, si es posible el estándar Prometheus + Grafana. Requerimientos Los requerimientos han sido ya tratados en dicha sección en el pre-proyecto. Puedes visualizarlo aquí: https://github.com/ManuelLoraRoman/ApuntesASIR/blob/master/Proyecto.md Lo único a comentar sería con que voy a trabajar que sería: Lenovo Legion Y720 Debian 10 16 GB RAM Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz 8 procesadores con 4 cores cada uno 1 TB disco duro Instalaciones Aunque hablaremos más adelante de los tipos de instalaciones que hay, vamos a exponer de manera breve los diferentes tipos que hay: Ubuntu + Snap sudo apt-get install snapd sudo snap install rocketchat-server Una vez hecho esto, tendríamos desplegado en nuestro localhost Rocket.chat y podremos configurarlo. Snap actualiza de manera automática cuando hay una nueva version de Rocket.Chat y suele ser una opción más segura ya que tanto Rocket.Chat y sus dependencias están separadas del sistema. Despliegue en PaaS Las recomendadas serían SandStorm y Cloudron pero prácticamente se puede desplegar en cualquier entorno, desde Amazon Web Services hasta en Digital Ocean entre otros. Herramientas de automatización Ansible OpenShift Kubernetes + Helm Vagrant Instalación manual CentOS Debian RedHat Ubuntu Prácticamente, es posible instalar el servidor de Rocket.Chat en diferentes entornos. Contenedores Docker Hemos hablado anteriormente de esta opción. Métodos no oficiales FreeBSD Windows 10 / Windows Server Kali OpenSUSE Los métodos anteriormente comentados en los otros puntos, están respaldados por Rocket.Chat. Pero es posible instalar el servidor en alguno de estos sistemas, pero no se puede asegurar que funcionen o que se actualicen las funcionalidades. Comentados todos los métodos de instalación, vamos a desarrollar nuestro ejercicio con contenedores Docker. Se ajustan bien a nuestro escenario y disponen de la portabilidad que buscamos. Ahora pasaremos al siguiente punto, que es la documentación: Documentación &amp;gt;</summary></entry><entry><title type="html">Rocket.Chat implementado con Docker</title><link href="/blog/rocketchat-docker" rel="alternate" type="text/html" title="Rocket.Chat implementado con Docker" /><published>2021-03-15T06:31:00+01:00</published><updated>2021-03-15T06:32:25+01:00</updated><id>/blog/rocketchat-docker</id><content type="html" xml:base="/blog/rocketchat-docker">&lt;p class=&quot;message&quot;&gt;Rocket.Chat es una herramienta que permite de manera segura, mantener los datos y las comunicaciones centralizadas.&lt;/p&gt;
+
+&lt;h2 id=&quot;recomendaciones&quot;&gt;Recomendaciones&lt;/h2&gt;
+
+&lt;p&gt;Antes de empezar a hablar sobre Rocket.chat, voy a explicar un poco el porqué utilizar Rocket.Chat con contenedores.&lt;/p&gt;
+
+&lt;p&gt;En principio, los contenedores y las máquinas virtuales difieren en varios aspectos pero el principal
+es que los contenedores ofrecen una forma de virtualizar un sistema operativo haciendo que múltiples cargas de
+trabajo puedan correr en una sencilla instancia de dicho sistema operativo, mientras que las máquinas virtuales
+todo el hardware es virtualizado para correr en diferentes sistemas operativos.&lt;/p&gt;
+
+&lt;p&gt;Esto hace que los contenedores sean más ágiles, veloces y que tengan mayor portabilidad. Además de los siguientes beneficios:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Requieren menos tiempo para iniciarse&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Mejor distribución de recursos&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Acceso directo al hardware&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Menos redundante&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Aparte son más sencillos de orquestar, con diferentes sistemas como Kubernetes, Rancher, Openshift o Docker-compose.&lt;/p&gt;
+
+&lt;p&gt;Otra de las recomendaciones es usar un sistema de monitorización, si es posible el estándar Prometheus + Grafana.&lt;/p&gt;
+
+&lt;h2 id=&quot;requerimientos&quot;&gt;Requerimientos&lt;/h2&gt;
+
+&lt;p&gt;Los requerimientos han sido ya tratados en dicha sección en el pre-proyecto. Puedes visualizarlo aquí:&lt;/p&gt;
+
+&lt;p&gt;https://github.com/ManuelLoraRoman/ApuntesASIR/blob/master/Proyecto.md&lt;/p&gt;
+
+&lt;p&gt;Lo único a comentar sería con que voy a trabajar que sería:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Lenovo Legion Y720&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Debian 10&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;16 GB RAM&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;8 procesadores con 4 cores cada uno&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;1 TB disco duro&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;instalaciones&quot;&gt;Instalaciones&lt;/h2&gt;
+
+&lt;p&gt;Existen varios tipos de instalaciones para Rocket.Chat. Veremos algunos de ellos, y elegiremos cual es el más adecuado.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Ubuntu + Snap&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nx&quot;&gt;sudo&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;apt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;get&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;snapd&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;sudo&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;snap&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rocketchat&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;server&lt;/span&gt;   
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Una vez hecho esto, tendríamos desplegado en nuestro &lt;em&gt;localhost&lt;/em&gt; Rocket.chat y podremos configurarlo.&lt;/p&gt;
+
+&lt;p&gt;Snap actualiza de manera automática cuando hay una nueva version de Rocket.Chat y suele ser una opción más segura ya que 
+tanto Rocket.Chat y sus dependencias están separadas del sistema.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Despliegue en PaaS&lt;/p&gt;
+
+    &lt;p&gt;Las recomendadas serían &lt;em&gt;SandStorm&lt;/em&gt; y &lt;em&gt;Cloudron&lt;/em&gt; pero prácticamente se puede desplegar en cualquier entorno,
+desde &lt;em&gt;Amazon Web Services&lt;/em&gt; hasta en &lt;em&gt;Digital Ocean&lt;/em&gt; entre otros.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Herramientas de automatización&lt;/p&gt;
+
+    &lt;p&gt;Es posible instalar el servidor con las siguientes herramientas:&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;a href=&quot;https://docs.rocket.chat/installation/automation-tools/ansible&quot;&gt;Ansible&lt;/a&gt;&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;a href=&quot;https://docs.rocket.chat/installation/automation-tools/openshift&quot;&gt;OpenShift&lt;/a&gt;&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;a href=&quot;https://docs.rocket.chat/installation/automation-tools/helm-chart&quot;&gt;Kubernetes + Helm&lt;/a&gt;&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;a href=&quot;https://docs.rocket.chat/installation/automation-tools/vagrant&quot;&gt;Vagrant&lt;/a&gt;&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Instalación manual&lt;/p&gt;
+
+    &lt;p&gt;Prácticamente, es posible instalar el servidor de Rocket.Chat en diferentes entornos. Algunos de ellos son:&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;CentOS&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;Debian&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;RedHat&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;Ubuntu&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Contenedores Docker&lt;/p&gt;
+
+    &lt;p&gt;Hemos hablado anteriormente de esta opción.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Métodos No-oficiales&lt;/p&gt;
+
+    &lt;p&gt;Los métodos anteriormente comentados, están respaldados por la Rocket.Chat. Es posible instalar el servidor
+en alguno de estos sistemas, pero no se puede asegurar que funcionen o que se actualicen las funcionalidades.
+Por comentar algunas, tenemos:&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;FreeBSD&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;Windows 10 / Windows Server&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;Kali&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;OpenSUSE&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Comentados todos los métodos de instalación, vamos a desarrollar nuestro ejercicio con contenedores Docker. Se ajustan
+bien a nuestro escenario y disponen de la portabilidad que buscamos.&lt;/p&gt;
+
+&lt;h2 id=&quot;documentación-sobre-contenedores-docker-y-rocketchat&quot;&gt;Documentación sobre contenedores Docker y Rocket.Chat&lt;/h2&gt;
+
+&lt;p&gt;Rocket.Chat dispone de tres imágenes oficiales, siendo la versión &lt;em&gt;stable&lt;/em&gt; la que en principio vamos a utilizar.&lt;/p&gt;
+
+&lt;p&gt;Simplemente, para bajarse la imagen, debemos ejecutar lo siguiente:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;pull&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rocket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;chat&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;En caso de querer ejecutar Rocket.Chat sobre &lt;em&gt;systemd&lt;/em&gt; vamos a seguir los siguientes pasos:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;network&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;create&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rocketchat_default&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Crearemos a continuación dos servicios: el servicio de mongo y el servicio de Rocket.Chat.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;mongo.service&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Unit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Description&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Requires&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;service&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;After&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;service&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Service&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;EnvironmentFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/etc/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;environment&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;dockeruser&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Restart&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;always&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;TimeoutStartSec&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;ExecStartPre&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/usr/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;kill&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;ExecStartPre&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/usr/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rm&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;ExecStartPre&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/usr/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;pull&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;3.2&lt;/span&gt;
+
+
+&lt;span class=&quot;nx&quot;&gt;ExecStart&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/usr/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;run&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;v&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;db&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;v&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;dump&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;dump&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;\&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;optional&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;net&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rocketchat_default&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;3.2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;mongod&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;smallfiles&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;oplogSize&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;128&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;replSet&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rs0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;storageEngine&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mmapv1&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;ExecStop&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/usr/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;kill&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;ExecStop&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/usr/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rm&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;rocketchat.service&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Unit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Description&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rocketchat&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Requires&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;service&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Requires&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;service&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;After&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;service&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;After&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;service&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Service&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;EnvironmentFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/etc/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;environment&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;dockeruser&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Restart&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;always&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;TimeoutStartSec&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;ExecStartPre&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/usr/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;kill&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rocketchat&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;ExecStartPre&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/usr/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rm&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rocketchat&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;ExecStartPre&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/usr/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;pull&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rocketchat&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rocket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;chat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;latest&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;ExecStart&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/usr/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;run&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rocketchat&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;v&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;uploads&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;uploads&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;e&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;MONGO_OPLOG_URL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mongodb&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//mongo:27017/local \&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;e&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;MONGO_URL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mongodb&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//mongo:27017/rocketchat \&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;e&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ROOT_URL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//sub.domain.xx \&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;link&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;net&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rocketchat_default&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;expose&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;rocketchat&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rocket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;chat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;latest&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;ExecStop&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/usr/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;kill&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rocketchat&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;ExecStop&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/usr/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rm&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rocketchat&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Una vez creado dichos servicios, iniciamos el servicio de mongo y creamos este contenedor Docker:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;run&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;replica&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;link&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rm&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;net&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rocketchat_default&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;3.2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;\&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rocketchat&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;eval&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;rs.initiate({ _id: 'rs0', members: [ { _id: 0, host: 'localhost:27017' } ]})&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;E iniciamos el servicio de Rocket.Chat. En caso de tener un &lt;em&gt;proxy inverso&lt;/em&gt;, nos debemos asegurar que está añadido
+en la red creada anteriormente. Para ello, debemos añadir la siguiente línea en el archivo
+&lt;em&gt;rocketchat.service&lt;/em&gt;:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nx&quot;&gt;ExecStartPre&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/usr/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;network&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;connect&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rocketchat_default&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Nginx&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;documentación-sobre-docker-compose-y-rocketchat&quot;&gt;Documentación sobre Docker-compose y Rocket.chat&lt;/h2&gt;
+
+&lt;p&gt;Es posible, como hemos visto en clase, que se puede automatizar el proceso de creación de contenedores
+mediante un fichero .yml. Podremos descargar el fichero docker-compose.yml que nos proporciona la 
+plataforma de rocket.chat:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nx&quot;&gt;curl&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;L&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//raw.githubusercontent.com/RocketChat/Rocket.Chat/develop/docker-compose.yml -o docker-compose.yml&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Dicho archivo &lt;em&gt;docker-compose.yml&lt;/em&gt; tiene el siguiente contenido:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nx&quot;&gt;version&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;services&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;rocketchat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rocketchat&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rocket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;chat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;latest&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;command&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;bash&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;c&lt;/span&gt;
+        &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;for i in `seq 1 30`; do
+          node main.js &amp;amp;&amp;amp;
+          s=$$? &amp;amp;&amp;amp; break || s=$$?;
+          echo &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Tried $$i times. Waiting 5 secs...&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;;
+          sleep 5;
+        done; (exit $$s)&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;restart&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;unless&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;stopped&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;volumes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;uploads&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;uploads&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;environment&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;PORT&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3000&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ROOT_URL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;http&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//localhost:3000&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;MONGO_URL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mongodb&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//mongo:27017/rocketchat&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;MONGO_OPLOG_URL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mongodb&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//mongo:27017/local&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;MAIL_URL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;smtp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//smtp.email&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;       &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;HTTP_PROXY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;http&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//proxy.domain.com&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;       &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;HTTPS_PROXY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;http&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//proxy.domain.com&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;depends_on&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;ports&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3000&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;labels&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;traefik.backend=rocketchat&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;traefik.frontend.rule=Host: your.domain.tld&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;
+
+  &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mongo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;4.0&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;restart&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;unless&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;stopped&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;volumes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+     &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;db&lt;/span&gt;
+     &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;dump&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;dump&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;command&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mongod&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;smallfiles&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;oplogSize&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;128&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;replSet&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rs0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;storageEngine&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mmapv1&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;labels&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;traefik.enable=false&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;
+
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;container&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;s job is just run the command to initialize the replica set.
+  # it will run the command and remove himself (it will not stay running)
+  mongo-init-replica:
+    image: mongo:4.0
+    command: &amp;gt;
+      bash -c
+        &quot;for i in `seq 1 30`; do
+          mongo mongo/rocketchat --eval &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&quot;
+            rs.initiate({
+              _id: &lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rs0&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;,
+              members: [ { _id: 0, host: &lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;localhost&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;27017&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt; } ]})&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&quot; &amp;amp;&amp;amp;
+          s=$$? &amp;amp;&amp;amp; break || s=$$?;
+          echo &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&quot;Tried $$i times. Waiting 5 secs...&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&quot;;
+          sleep 5;
+        done; (exit $$s)&quot;
+    depends_on:
+      - mongo
+
+  # hubot, the popular chatbot (add the bot user first and change the password before starting this image)
+  hubot:
+    image: rocketchat/hubot-rocketchat:latest
+    restart: unless-stopped
+    environment:
+      - ROCKETCHAT_URL=rocketchat:3000
+      - ROCKETCHAT_ROOM=GENERAL
+      - ROCKETCHAT_USER=bot
+      - ROCKETCHAT_PASSWORD=botpassword
+      - BOT_NAME=bot
+  # you can add more scripts as you&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;d&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;like&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;here&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;they&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;need&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;be&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;installable&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;by&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;npm&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;EXTERNAL_SCRIPTS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;hubot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;help&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;hubot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;seen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;hubot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;links&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;hubot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;diagnostics&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;depends_on&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;rocketchat&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;labels&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;traefik.enable=false&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;volumes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;scripts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;home&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;hubot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;scripts&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;used&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;expose&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;hubot&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;port&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;notifications&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;on&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;host&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;on&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;port&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3001&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;g&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;hubot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;jenkins&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;notifier&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;ports&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3001&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;8080&lt;/span&gt;
+
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;traefik&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;  &lt;span class=&quot;nx&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;traefik&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;latest&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;  &lt;span class=&quot;nx&quot;&gt;restart&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;unless&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;stopped&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;  &lt;span class=&quot;nx&quot;&gt;command&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;    &lt;span class=&quot;nx&quot;&gt;traefik&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;acme&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;acme&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;domains&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;your.domain.tld&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;acme&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;email&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;your@email.tld&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;acme&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;entrypoint&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;https&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;acme&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;storagefile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;acme&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;json&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;defaultentrypoints&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;http&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;defaultentrypoints&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;https&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;entryPoints&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;Name:http Address::80 Redirect.EntryPoint:https&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;entryPoints&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;Name:https Address::443 TLS.Certificates:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;  &lt;span class=&quot;nx&quot;&gt;ports&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;80&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;80&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;443&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;443&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;  &lt;span class=&quot;nx&quot;&gt;volumes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;sr&quot;&gt;/var/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/run/&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;docker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sock&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Este fichero realizará lo siguiente:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Inicia el servicio llamado &lt;em&gt;mongo&lt;/em&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Inicia el servicio llamado &lt;em&gt;mongo-init-replica&lt;/em&gt; que esperará a que el servicio de mongo esté listo,
+para conectarse a él e inicializarlo.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Por último, inicia el servicio de Rocket.Chat, que al igual que el anterior servicio, esperará a que
+&lt;em&gt;mongo&lt;/em&gt; esté listo.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Para iniciar dicho docker-compose con la instrucción &lt;em&gt;docker-compose up -d&lt;/em&gt; y ya tendríamos corriendo
+nuestra aplicación Rocket.chat.&lt;/p&gt;
+
+&lt;p&gt;En caso de querer manejar logs y demás, podemos descomentar las líneas del montaje de volúmenes.&lt;/p&gt;
+
+&lt;p&gt;Es posible intalar Rocket.Chat en alta disponibilidad con un replicaset de mongodb como backend, pero
+esta es una opción a tener en cuenta más adelante.&lt;/p&gt;
+
+&lt;h2 id=&quot;conexión-usuario&quot;&gt;Conexión usuario&lt;/h2&gt;
+
+&lt;p&gt;El usuario de la aplicación puede conectarse a través de 3 clientes diferentes:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Mediante navegador web&lt;/p&gt;
+
+    &lt;p&gt;Para conectarse a un servidor de Rocket.Chat, buscar la dirección donde se aloje dicha aplicación, 
+introducir sus credenciales y seguidamente, ya estaremos como miembros del servidor.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Mediante la aplicación de escritorio&lt;/p&gt;
+
+    &lt;p&gt;Mismo funcionamiento que el anterior, salvo que se realizará todo desde la aplicación descargada
+&lt;a href=&quot;https://rocket.chat/install&quot;&gt;aquí&lt;/a&gt;.&lt;/p&gt;
+
+    &lt;p&gt;Mediante la aplicación de escritorio, uno se puede conectar a varios servidores. Simplemente, pulsar
+el icono &lt;em&gt;+&lt;/em&gt; para añadir un servidor nuevo.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Mediante la app móvil&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;conexión-y-opciones-de-administrador&quot;&gt;Conexión y opciones de administrador&lt;/h2&gt;
+
+&lt;p&gt;Rocket.Chat permite administrar la aplicación, cambiado las diferentes opciones que esta dispone.
+Ahora iré comentando una a una, todas las características que tiene y parándome a desarrollar las
+más interesantes:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Permitir el uso de certificados autofirmados e inválidos.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Solo para validar mediante link y para previsualizaciones.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Permitir el uso de Bugsnag API Key&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;(Detección y corrección de Bugs)&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Prefijos CDN para JS/CSS u otros&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Se puede configurar un prefijo CDN de donde cargará el contenido de JS/CSS&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Habilitar salas favoritas&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Permitirá a los usuarios el que puedan colocar en favoritos las diferentes salas públicas o privadas.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Canal por defecto&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Una vez un usuario se conecte al servidor, este entrará en dicho canal de manera predeterminada. Si el
+campo está vacío, o tiene un canal inválido, el usuario será dirigido a la página principal del servidor.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Forzar deshabilitación de OpLog para Caché&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;No se usará OpLog para sincronizar la caché incluso si está habilitada dicha opción.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Forzar SSL&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Esta opción no la usaremos, porque para eso tenemos el proxy inverso que redireccionará a https.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Uso de Google Tag Manager ID&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Lenguaje&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Reinicio&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Contenido del fichero Robots.txt&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Permite cambiar el contenido de dicho fichero, para ayudar a indexar de manera correcta el servidor en 
+diferentes motores de búsqueda.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Mostrar Opciones Wizard&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Se recomienda no tocar esta opción ya que puede hacer que se bloquee un servidor.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Nombre del sitio&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;URL del sitio&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Guardar último mensaje de cada sala&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Esto permitirá ver dichos mensajes en la barra lateral.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Contador de mensajes no leídos&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Contador de mensjaes no leídos para mensajes directos&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Habilitar notificaciones&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Y otras tantas características que tratan de la API RESTful u integración de Iframe.&lt;/p&gt;
+
+&lt;h2 id=&quot;hub&quot;&gt;HUB&lt;/h2&gt;
+
+&lt;h2 id=&quot;bibliografía&quot;&gt;Bibliografía&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;www.blackblaze.com/blog/vm-vs-containers/&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;</content><author><name></name></author><category term="RocketChat" /><category term="Docker" /><category term="Tutorial" /><category term="LDAP" /><category term="Ubuntu" /><summary type="html">Rocket.Chat es una herramienta que permite de manera segura, mantener los datos y las comunicaciones centralizadas.</summary></entry><entry><title type="html">Sample Post</title><link href="/blog/sample-post" rel="alternate" type="text/html" title="Sample Post" /><published>2020-04-24T00:00:00+02:00</published><updated>2020-04-24T00:00:00+02:00</updated><id>/blog/sample-post</id><content type="html" xml:base="/blog/sample-post">&lt;p&gt;This post will show you how the content will look like in the post pages and how the headlines, quotes and quotes will be represented. Jekyll is mainly used to write simple markdown and after that it renders out a static pages, so you need to know the basics of writing markdown for that.
+For more information about writing markdown you can checkout the following markdown cheatsheets:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://guides.github.com/features/mastering-markdown/&quot;&gt;Mastering Markdown&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.markdownguide.org/cheat-sheet/&quot;&gt;Markdown Guide&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.github.com/gfm/&quot;&gt;GitHub Flavored Markdown Spec&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
 &lt;hr /&gt;
 
-&lt;h1 id=&quot;installation&quot;&gt;Installation&lt;/h1&gt;
-&lt;h3 id=&quot;step-1---setting-up-whatatheme&quot;&gt;Step 1 - Setting up WhatATheme&lt;/h3&gt;
+&lt;h1 id=&quot;this-is-the-h1-text&quot;&gt;This is the h1 text&lt;/h1&gt;
+&lt;h2 id=&quot;this-is-the-h2-text&quot;&gt;This is the h2 text&lt;/h2&gt;
+&lt;h3 id=&quot;this-is-the-h3-text&quot;&gt;This is the h3 text&lt;/h3&gt;
+&lt;h4 id=&quot;this-is-the-h4-text&quot;&gt;This is the h4 text&lt;/h4&gt;
+&lt;h5 id=&quot;this-is-the-h5-text&quot;&gt;This is the h5 text&lt;/h5&gt;
+&lt;h6 id=&quot;this-is-the-h6-text&quot;&gt;This is the h6 text&lt;/h6&gt;
+
+&lt;p&gt;&lt;strong&gt;Bold Text in the post will look like:&lt;/strong&gt;&lt;br /&gt;
+&lt;strong&gt;This text is Bold&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Italic Text in the post will look like:&lt;/strong&gt;&lt;br /&gt;
+&lt;em&gt;This text is Italic&lt;/em&gt;&lt;/p&gt;
+
 &lt;blockquote&gt;
-  &lt;ul&gt;
-    &lt;li&gt;Fork the &lt;a href=&quot;https://github.com/thedevslot/WhatATheme/tree/master&quot; target=&quot;blankl&quot;&gt;repository&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;Go to repository settings and set Github Pages source as master.&lt;/li&gt;
-    &lt;li&gt;Your new site should be ready at &lt;a href=&quot;#&quot; target=&quot;blank&quot;&gt;https://username.github.io/WhatATheme/&lt;/a&gt;&lt;/li&gt;
-  &lt;/ul&gt;
+  &lt;p&gt;Quotes on your post will look like this&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;h3 id=&quot;step-2---making-changes-via-_configyml&quot;&gt;Step 2 - Making changes via &lt;strong&gt;_config.yml&lt;/strong&gt;&lt;/h3&gt;
-&lt;blockquote&gt;
-  &lt;ul&gt;
-    &lt;li&gt;Open _config.yml file&lt;/li&gt;
-    &lt;li&gt;Fill the available details accordingly&lt;/li&gt;
-    &lt;li&gt;Commit the changes&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/blockquote&gt;</content><author><name></name></author><category term="how to" /><category term="setup" /><category term="theme" /><summary type="html">What is WhatATheme? You’ll find this post in your _posts directory. Go ahead and edit it and re-build the site to see your changes. &amp;gt;You can rebuild the site in many different ways, but the most common way is to run bundle exec jekyll serve, which launches a web server and auto-regenerates your site when a file is updated. WhatATheme is a customizable Jekyll Portfolio theme which supports blogging. You can use this theme in order to create an elegant, fully responsive portfolio which includes Home Page - A Hero section - A section where you can outsource an image which will work as the background for the particular section; it also will include your name and a tagline which can be easily manipulated via the _config.yml file. An About section - A section where you can include your image and a 60 word paragraph which again you can easily manipulate using the _config.yml file. A Contact section - A section where you can include 3 direct ways to contact Ping on Messenger Send an Email Tweet on Twitter The contact section will also include 10 different social media buttons for your audience to follow. Facebook, Twitter, Instagram, LinkedIn, GitHub, YouTube, Reddit, Behance, Dribbble &amp;amp; Spotify. Blog - The blog includes a horizontal card list where the latest articles are fetched from the _posts folder automatically in top-down format. It also includes an instant search box which matches your query from the title, description &amp;amp; content of your post and shows the result as soon as you type. The blog card includes Post Title 300 words from the content of the post The publish date The time which will be required to read the post. Projects - The Projects page will include all the projects from the projects.yml file which is present in the _data folder. Projects will be showcased in a card-list format where each card will contain An image related to the project A Project Title A Project Description of about 80 words Footer - The footer includes A small about the author widget which show the same Author Image as mentioned in the about section of the Home page which includes Name of the Author, Around 75 words about the author. A more link widget which includes a link to any extra page that you’ve created and a Subscribe via RSS link. A Recent posts widget which will include latest 3 posts. Extra Features - WhatATheme comes pre installed with HTML Compressor - It’ll compress all the pages by removing any extra space or blank lines. Google Analytics - A web analytics service offered by Google that tracks and reports website traffic. For more information click here. Disqus - A worldwide blog comment hosting service for web sites and online communities that use a networked platform. For more information about Disqus click here ##### For more information about WhatATheme click here. Installation Step 1 - Setting up WhatATheme Fork the repository Go to repository settings and set Github Pages source as master. Your new site should be ready at https://username.github.io/WhatATheme/ Step 2 - Making changes via _config.yml Open _config.yml file Fill the available details accordingly Commit the changes</summary></entry><entry><title type="html">What is Jekyll? How to use it?</title><link href="/blog/what-is-jekyll-how-to-use-it" rel="alternate" type="text/html" title="What is Jekyll? How to use it?" /><published>2020-04-21T00:00:00+02:00</published><updated>2020-04-21T00:00:00+02:00</updated><id>/blog/what-is-jekyll-how-to-use-it</id><content type="html" xml:base="/blog/what-is-jekyll-how-to-use-it">&lt;p&gt;Jekyll is a simple, blog-aware, static site generator perfect for personal, project, or organization sites. Think of it like a file-based CMS, without all the complexity. Jekyll takes your content, renders Markdown and Liquid templates, and spits out a complete, static website ready to be served by Apache, Nginx or another web server. Jekyll is the engine behind GitHub Pages, which you can use to host sites right from your GitHub repositories and if you don’t know what GitHub Pages are you can visit on click &lt;a href=&quot;https://help.github.com/en/github/working-with-github-pages/about-github-pages&quot; target=&quot;blank&quot;&gt;here&lt;/a&gt; or &lt;a href=&quot;https://pages.github.com/&quot; target=&quot;blank&quot;&gt;here&lt;/a&gt;&lt;/p&gt;
-&lt;h6 id=&quot;source--jekyll-docs&quot;&gt;Source : &lt;a href=&quot;https://jekyllrb.com/docs/&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Jekyll Docs&lt;/code&gt;&lt;/a&gt;&lt;/h6&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Codes on your post will look like this&lt;/code&gt;&lt;/p&gt;
 
-&lt;blockquote&gt;
-  &lt;h3 id=&quot;to-know-more-and-get-started-with-jekyll-you-can-click-here&quot;&gt;To know more and get started with Jekyll you can click &lt;a href=&quot;https://jekyllrb.com/&quot; targe=&quot;_blank&quot;&gt;here&lt;/a&gt;&lt;/h3&gt;
-&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Link in the post will look like:&lt;/strong&gt;&lt;br /&gt;
+&lt;a href=&quot;#&quot;&gt;This is a link&lt;/a&gt;&lt;/p&gt;
 
-&lt;h1 id=&quot;installation&quot;&gt;Installation&lt;/h1&gt;
-&lt;p&gt;&lt;strong&gt;Jekyll is a Ruby Gem that can be installed on most systems.&lt;/strong&gt;&lt;/p&gt;
-&lt;h3 id=&quot;requirements&quot;&gt;Requirements&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Bullet list in the post will look like:&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://www.ruby-lang.org/en/downloads/&quot; target=&quot;_blank&quot;&gt;Ruby&lt;/a&gt; version 2.5.0 or above, including all development headers (ruby version can be checked by running ruby -v)&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://rubygems.org/pages/download&quot; target=&quot;_blank&quot;&gt;Ruby Gems&lt;/a&gt; (which you can check by running gem -v)&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://gcc.gnu.org/install/&quot; target=&quot;_blank&quot;&gt;GCC&lt;/a&gt; and &lt;a href=&quot;https://www.gnu.org/software/make/&quot; target=&quot;_blank&quot;&gt;Make&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Item 1&lt;/li&gt;
+  &lt;li&gt;Item 2&lt;/li&gt;
+  &lt;li&gt;Item 3&lt;/li&gt;
+  &lt;li&gt;Item 4&lt;/li&gt;
+  &lt;li&gt;Item 5&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&quot;after-installing-the-requirements-you-can-follow-these-guides&quot;&gt;After Installing the Requirements you can follow these guides:&lt;/h3&gt;
-&lt;p&gt;&lt;strong&gt;For detailed install instructions have a look at the guide for your operating system.&lt;/strong&gt;&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://jekyllrb.com/docs/installation/macos/&quot; target=&quot;_blank&quot;&gt;macOS&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://jekyllrb.com/docs/installation/ubuntu/&quot; target=&quot;_blank&quot;&gt;Ubuntu&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://jekyllrb.com/docs/installation/other-linux/&quot; target=&quot;_blank&quot;&gt;Other Linux Distros&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://jekyllrb.com/docs/installation/windows/&quot; target=&quot;_blank&quot;&gt;Windows&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Number list in the post will look like:&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Item 1&lt;/li&gt;
+  &lt;li&gt;Item 2&lt;/li&gt;
+  &lt;li&gt;Item 3&lt;/li&gt;
+  &lt;li&gt;Item 4&lt;/li&gt;
+  &lt;li&gt;Item 5&lt;/li&gt;
+&lt;/ol&gt;
 
-&lt;h3 id=&quot;creating-a-new-jekyll-site&quot;&gt;Creating a new Jekyll site&lt;/h3&gt;
-&lt;p&gt;&lt;strong&gt;We can create a new Jekyll site just by a simple command:&lt;/strong&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;h1 id=&quot;jekyll-new-my-site&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jekyll new my-site&lt;/code&gt;&lt;/h1&gt;
-&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Images in the post will look like:&lt;/strong&gt;&lt;br /&gt;
+&lt;img src=&quot;/WhatATheme/assets/images/1280x720%20Placeholder.png&quot; alt=&quot;Test Image&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Jekyll will create a new directory named as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;my-site&lt;/code&gt; which is customizable (i.e., you can change the name from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;my-site&lt;/code&gt; to anything you want for example &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jekyll new brutus&lt;/code&gt;).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Normal text in the post will look like&lt;/strong&gt;&lt;br /&gt;
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris id finibus nisl. Etiam in hendrerit est. Nulla non erat ac lectus interdum lobortis. Vestibulum at mi ex. Mauris nisl mi, venenatis et feugiat nec, finibus porttitor velit. Suspendisse tincidunt lobortis leo, quis tristique tellus iaculis quis. Donec eleifend pulvinar gravida. Proin non lorem eros. Donec sit amet finibus ex, eget vestibulum nunc. Ut ut enim id purus porttitor tristique. Vivamus tincidunt eleifend hendrerit. Proin metus felis, ultrices vel dui in, porta dapibus dui. Sed sagittis ex vitae dui tristique dignissim. Cras vel leo ipsum.&lt;/p&gt;
 
-&lt;h3 id=&quot;changing-into-the-directory&quot;&gt;Changing into the Directory&lt;/h3&gt;
-&lt;p&gt;&lt;strong&gt;We have to go inside the directory:&lt;/strong&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;h1 id=&quot;cd-my-site&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cd my-site&lt;/code&gt;&lt;/h1&gt;
-&lt;/blockquote&gt;
+&lt;p&gt;Aenean ac neque et risus mattis accumsan. Sed ac tellus molestie, lacinia ante sit amet, convallis felis. Maecenas aliquet lectus nec euismod auctor. Donec finibus pellentesque tortor, ac efficitur metus suscipit non. Proin diam orci, blandit quis malesuada ac, efficitur a nisl. Mauris eleifend consequat blandit. Sed egestas quam et orci gravida, non euismod metus scelerisque. Curabitur venenatis pellentesque erat commodo pharetra. Fusce id ante nec ipsum fringilla auctor. In justo quam, feugiat placerat eleifend dapibus, luctus et quam. Fusce facilisis erat ut odio convallis viverra et id mauris. Sed vehicula tempus consectetur. Aliquam pharetra, purus non egestas tristique, tellus massa fringilla est, id sagittis tellus urna non mauris. Suspendisse fringilla, velit nec blandit facilisis, ligula ante imperdiet est, et placerat magna sem quis tortor.&lt;/p&gt;
 
-&lt;p&gt;Again, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;my-site&lt;/code&gt; is just a random name which is customizable.&lt;/p&gt;
+&lt;p&gt;Vestibulum vitae fermentum velit, rhoncus egestas orci. Nulla at purus ut orci posuere vulputate. In eget leo diam. In congue in diam nec elementum. Suspendisse fringilla ante nulla, eu tristique orci ultrices eget. Aenean non lorem tellus. Vestibulum tempor metus sit amet tellus feugiat, sit amet consequat lacus ultricies.&lt;/p&gt;
 
-&lt;h3 id=&quot;building-the-site-and-making-it-available-on-a-local-server&quot;&gt;Building the site and making it available on a local server&lt;/h3&gt;
-&lt;blockquote&gt;
-  &lt;h1 id=&quot;bundle-exec-jekyll-serve&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;bundle exec jekyll serve&lt;/code&gt;&lt;/h1&gt;
-&lt;/blockquote&gt;
+&lt;p&gt;Donec imperdiet, lectus eget congue cursus, dolor enim finibus risus, ut molestie lorem tellus non tortor. Donec quam nibh, molestie in dapibus et, efficitur non tortor. Morbi orci tellus, mollis vel mi vitae, auctor lobortis erat. Ut gravida velit eget ligula lacinia, id rhoncus tellus gravida. Maecenas laoreet rutrum consequat. Suspendisse sed nibh dui. Curabitur dictum euismod mollis. Sed egestas libero libero, eu accumsan augue placerat non. Nunc id condimentum orci. Mauris vitae sollicitudin quam.&lt;/p&gt;
 
-&lt;h3 id=&quot;browsing-your-jekyll-site&quot;&gt;Browsing your Jekyll site&lt;/h3&gt;
-&lt;blockquote&gt;
-  &lt;h1 id=&quot;browse-to-httplocalhost4000&quot;&gt;Browse to &lt;a href=&quot;http://localhost:4000/&quot; target=&quot;_blank&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;http://localhost:4000/&lt;/code&gt;&lt;/a&gt;&lt;/h1&gt;
-&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Giphy Gifs will look like:&lt;/strong&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;iframe src=&quot;https://giphy.com/embed/ZqlvCTNHpqrio&quot; width=&quot;480&quot; height=&quot;259&quot; frameborder=&quot;0&quot; class=&quot;giphy-embed&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;
+&lt;p&gt;&lt;a href=&quot;https://giphy.com/gifs/laughing-despicable-me-minions-ZqlvCTNHpqrio&quot;&gt;via GIPHY&lt;/a&gt;&lt;/p&gt;
 
-&lt;h6 id=&quot;on-encountering-any-problem-while-building-and-serving-your-jekyll-site-you-can-consider-visiting-to-the-troubleshooting-page&quot;&gt;On encountering any problem while building and serving your Jekyll site you can consider visiting to the &lt;a href=&quot;https://jekyllrb.com/docs/troubleshooting/#configuration-problems&quot; target=&quot;_blank&quot;&gt;troubleshooting&lt;/a&gt; page&lt;/h6&gt;</content><author><name></name></author><category term="jekyll" /><category term="informative" /><category term="technology" /><summary type="html">Jekyll is a simple, blog-aware, static site generator perfect for personal, project, or organization sites. Think of it like a file-based CMS, without all the complexity. Jekyll takes your content, renders Markdown and Liquid templates, and spits out a complete, static website ready to be served by Apache, Nginx or another web server. Jekyll is the engine behind GitHub Pages, which you can use to host sites right from your GitHub repositories and if you don’t know what GitHub Pages are you can visit on click here or here Source : Jekyll Docs To know more and get started with Jekyll you can click here Installation Jekyll is a Ruby Gem that can be installed on most systems. Requirements Ruby version 2.5.0 or above, including all development headers (ruby version can be checked by running ruby -v) Ruby Gems (which you can check by running gem -v) GCC and Make After Installing the Requirements you can follow these guides: For detailed install instructions have a look at the guide for your operating system. macOS Ubuntu Other Linux Distros Windows Creating a new Jekyll site We can create a new Jekyll site just by a simple command: jekyll new my-site Jekyll will create a new directory named as my-site which is customizable (i.e., you can change the name from my-site to anything you want for example jekyll new brutus). Changing into the Directory We have to go inside the directory: cd my-site Again, my-site is just a random name which is customizable. Building the site and making it available on a local server bundle exec jekyll serve Browsing your Jekyll site Browse to http://localhost:4000/ On encountering any problem while building and serving your Jekyll site you can consider visiting to the troubleshooting page</summary></entry></feed>
+&lt;p&gt;&lt;strong&gt;YouTUbe Videos will look like:&lt;/strong&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/jTPXwbDtIpA&quot; frameborder=&quot;0&quot; allow=&quot;accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;</content><author><name></name></author><category term="sample" /><category term="post" /><category term="test" /><summary type="html">This post will show you how the content will look like in the post pages and how the headlines, quotes and quotes will be represented. Jekyll is mainly used to write simple markdown and after that it renders out a static pages, so you need to know the basics of writing markdown for that. For more information about writing markdown you can checkout the following markdown cheatsheets: Mastering Markdown Markdown Guide GitHub Flavored Markdown Spec This is the h1 text This is the h2 text This is the h3 text This is the h4 text This is the h5 text This is the h6 text Bold Text in the post will look like: This text is Bold Italic Text in the post will look like: This text is Italic Quotes on your post will look like this Codes on your post will look like this Link in the post will look like: This is a link Bullet list in the post will look like: Item 1 Item 2 Item 3 Item 4 Item 5 Number list in the post will look like: Item 1 Item 2 Item 3 Item 4 Item 5 Images in the post will look like: Normal text in the post will look like Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris id finibus nisl. Etiam in hendrerit est. Nulla non erat ac lectus interdum lobortis. Vestibulum at mi ex. Mauris nisl mi, venenatis et feugiat nec, finibus porttitor velit. Suspendisse tincidunt lobortis leo, quis tristique tellus iaculis quis. Donec eleifend pulvinar gravida. Proin non lorem eros. Donec sit amet finibus ex, eget vestibulum nunc. Ut ut enim id purus porttitor tristique. Vivamus tincidunt eleifend hendrerit. Proin metus felis, ultrices vel dui in, porta dapibus dui. Sed sagittis ex vitae dui tristique dignissim. Cras vel leo ipsum. Aenean ac neque et risus mattis accumsan. Sed ac tellus molestie, lacinia ante sit amet, convallis felis. Maecenas aliquet lectus nec euismod auctor. Donec finibus pellentesque tortor, ac efficitur metus suscipit non. Proin diam orci, blandit quis malesuada ac, efficitur a nisl. Mauris eleifend consequat blandit. Sed egestas quam et orci gravida, non euismod metus scelerisque. Curabitur venenatis pellentesque erat commodo pharetra. Fusce id ante nec ipsum fringilla auctor. In justo quam, feugiat placerat eleifend dapibus, luctus et quam. Fusce facilisis erat ut odio convallis viverra et id mauris. Sed vehicula tempus consectetur. Aliquam pharetra, purus non egestas tristique, tellus massa fringilla est, id sagittis tellus urna non mauris. Suspendisse fringilla, velit nec blandit facilisis, ligula ante imperdiet est, et placerat magna sem quis tortor. Vestibulum vitae fermentum velit, rhoncus egestas orci. Nulla at purus ut orci posuere vulputate. In eget leo diam. In congue in diam nec elementum. Suspendisse fringilla ante nulla, eu tristique orci ultrices eget. Aenean non lorem tellus. Vestibulum tempor metus sit amet tellus feugiat, sit amet consequat lacus ultricies. Donec imperdiet, lectus eget congue cursus, dolor enim finibus risus, ut molestie lorem tellus non tortor. Donec quam nibh, molestie in dapibus et, efficitur non tortor. Morbi orci tellus, mollis vel mi vitae, auctor lobortis erat. Ut gravida velit eget ligula lacinia, id rhoncus tellus gravida. Maecenas laoreet rutrum consequat. Suspendisse sed nibh dui. Curabitur dictum euismod mollis. Sed egestas libero libero, eu accumsan augue placerat non. Nunc id condimentum orci. Mauris vitae sollicitudin quam. Giphy Gifs will look like: via GIPHY YouTUbe Videos will look like:</summary></entry></feed>
