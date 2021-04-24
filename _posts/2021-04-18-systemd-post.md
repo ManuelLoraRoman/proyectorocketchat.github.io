@@ -139,6 +139,6 @@ Ahora pasaremos a otro tipo de instalación.
 
  <span style="margin-right:980px;text-align:left;color:blue" onclick="document.location.href = 'introduction-post'; return false">< Introducción</span>
 
- <span style="margin-left:0px;text-align:right;color:blue" onclick="document.location.href = 'dockercompose-post'; return false">Instalación Docker-compose ></span>
+ <span style="margin-left:0px;float:right;color:blue" onclick="document.location.href = 'dockercompose-post'; return false">Instalación Docker-compose ></span>
 
 </div>
