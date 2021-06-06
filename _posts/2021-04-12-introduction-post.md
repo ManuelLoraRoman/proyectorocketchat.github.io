@@ -1,7 +1,7 @@
 ---
 title: Introducción a Rocket.Chat
 layout: post
-post-image: "/assets/images/1075x720-Introduction-Placeholder.png"
+post-image: "https://github.com/ManuelLoraRoman/proyectorocketchat.github.io/tree/main/assets/images/1075x720-Introduction-Placeholder.png"
 description: Rocket.Chat es una herramienta que permite de manera segura, 
  mantener los datos y las comunicaciones centralizadas.
 tags:
