@@ -21,8 +21,8 @@ docker pull rocket.chat
 <br>
 Demo de la descarga:
 
-<img src="/assets/images/descarga-imagen.gif" width="480" height="259" frameBorder="0"/>
-
+<div align="center"><img src="/assets/images/descarga-imagen.gif"/></div>
+<br>
 Una vez bajada dicha imagen, en caso de querer ejecutar Rocket.Chat sobre _systemd_ vamos a seguir los
 siguientes pasos:
 
@@ -35,7 +35,7 @@ docker network create rocketchat_default
 * Después, creamos dos servicios: el primero será el servicio para Mongodb y el otro, el servicio de
 Rocket.Chat.
 
-	* mongo.service
+	* **mongo.service**
 
 	```
 	[Unit]
@@ -65,7 +65,7 @@ Rocket.Chat.
 	```
 <br>
 
-	* rocketchat.service
+	* **rocketchat.service**
 
 	```
 	[Unit]
@@ -99,7 +99,8 @@ Rocket.Chat.
 	ExecStop=-/usr/bin/docker rm rocketchat
 	```
 <br>
-* Creados ambos servicios, vamos a iniciar el de Mongodb y creamos el siguiente contenedor Docker:
+* Creados ambos servicios, vamos a iniciar el servicio de *Mongodb* y creamos el siguiente contenedor 
+Docker:
 
 ```
 docker run \
@@ -111,7 +112,7 @@ docker run \
       mongo mongo/rocketchat --eval "rs.initiate({ _id: 'rs0', members: [ { _id: 0, host: 'localhost:27017' } ]})"
 ```
 <br>
-<img src="/assets/images/contenedor-mongo.gif" width="480" height="259" frameBorder="0"/>
+<div align = "center"><img src="/assets/images/contenedor-mongo.gif"/></div>
 <br>
 
 * Por último, vamos a iniciar el servicio de Rocket.Chat creado anteriormente:
@@ -132,7 +133,7 @@ _rocketchat.service_:
 ```
 ExecStartPre=-/usr/bin/docker network connect rocketchat_default Nginx
 ```
-
+<br>
 Ahora pasaremos a otro tipo de instalación.
 
 <div>

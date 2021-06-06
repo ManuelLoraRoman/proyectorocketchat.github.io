@@ -2,14 +2,14 @@
 markdown: kramdown
 
 # URL of the Site
-url: 'https://manuelloraroman.github.io/proyectorocketchat.github.io'
+url: ''
 # Base URL of the Site (i.e., Name of the Repository in which the Site is hosted)
 baseurl: 
 
 # Title of the Site
 title: Rocket.Chat
 # Description of the Site
-description: TFG para el curso de ASIR en el IES Gonzalo Nazareno
+description: Proyecto sobre Rocket.Chat para el curso de ASIR en el IES Gonzalo Nazareno
 # URL of Image of the Site
 site-image: /proyectorocketchat.github.io/assets/images/meta.jpg
 # Keywords of the Site
@@ -38,7 +38,7 @@ spotify_username: /
 google-analytics: 
 
 # Disqus
-disqus-shortname: ManuelLoraRoman
+disqus-shortname: thedevslot
 
 # Name of the Author
 author-name: ManuelLoraRoman
