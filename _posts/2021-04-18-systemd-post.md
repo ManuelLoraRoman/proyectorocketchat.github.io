@@ -1,7 +1,7 @@
 ---
 title: Instalación de Rocket.Chat via systemd
 layout: post
-post-image: "/assets/images/documetation-image.jpg"
+post-image: "https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/documetation-image.jpg"
 description: En este post se tratará de ver una de las maneras de instalación de
   nuestro proyecto con Rocket.Chat. 
 tags:
@@ -21,7 +21,7 @@ docker pull rocket.chat
 <br>
 Demo de la descarga:
 
-<div align="center"><img src="/assets/images/descarga-imagen.gif"/></div>
+<div align="center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/descarga-imagen.gif"/></div>
 <br>
 Una vez bajada dicha imagen, en caso de querer ejecutar Rocket.Chat sobre _systemd_ vamos a seguir los
 siguientes pasos:
@@ -112,7 +112,7 @@ docker run \
       mongo mongo/rocketchat --eval "rs.initiate({ _id: 'rs0', members: [ { _id: 0, host: 'localhost:27017' } ]})"
 ```
 <br>
-<div align = "center"><img src="/assets/images/contenedor-mongo.gif"/></div>
+<div align = "center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/contenedor-mongo.gif"/></div>
 <br>
 
 * Por último, vamos a iniciar el servicio de Rocket.Chat creado anteriormente:

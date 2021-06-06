@@ -1,7 +1,7 @@
 ---
 title: Instalación mediante Docker-Compose
 layout: post
-post-image: "/assets/images/dockercompose-image.jpg"
+post-image: "https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/dockercompose-image.jpg"
 description: Este post tratará la instalación de Rocket.Chat sobre Docker
   con la utilidad de dockercompose.
 tags:
@@ -137,12 +137,12 @@ Para iniciar el escenario que hemos montado, vamos a ejecutar el siguiente coman
 docker-compose up -d
 ```
 <br>
-<div align="center"><img src="/assets/images/despliegue-compose.gif"/></div>
+<div align="center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/despliegue-compose.gif"/></div>
 <br>
 Podemos ver las características del despliegue:
 <br>
 
-<div align="center"><img src="/assets/images/docker-ps.gif"/></div>
+<div align="center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/docker-ps.gif"/></div>
 
 <br>
 
@@ -159,7 +159,7 @@ Una vez ya desplegado, veremos la IP de acceso de la máquina deploy_rocketchat_
 
 <br>
 
-<div align="center"><img src="/assets/images/acceso-docker.gif"/></div>
+<div align="center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/acceso-docker.gif"/></div>
 
 <br>
 
@@ -167,7 +167,7 @@ Y una vez en la página, podemos iniciar sesión de manera normal:
 
 <br>
 
-<div align="center"><img src="/assets/images/inicio-sesion.gif"/></div>
+<div align="center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/inicio-sesion.gif"/></div>
 
 <br>
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-06-06T10:55:38+02:00</updated><id>/feed.xml</id><title type="html">Rocket.Chat</title><subtitle>Proyecto sobre Rocket.Chat para el curso de ASIR en el IES Gonzalo Nazareno</subtitle><entry><title type="html">Proxy inverso y Rocket.Chat</title><link href="/blog/proxy-post" rel="alternate" type="text/html" title="Proxy inverso y Rocket.Chat" /><published>2021-05-15T00:00:00+02:00</published><updated>2021-05-15T00:00:00+02:00</updated><id>/blog/proxy-post</id><content type="html" xml:base="/blog/proxy-post">&lt;p&gt;Existen varias formas de implementar un proxy inverso para Rocket.Chat. Veremos algunas, de las 
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-06-06T11:54:11+02:00</updated><id>/feed.xml</id><title type="html">Rocket.Chat</title><subtitle>Proyecto sobre Rocket.Chat para el curso de ASIR en el IES Gonzalo Nazareno</subtitle><entry><title type="html">Proxy inverso y Rocket.Chat</title><link href="/blog/proxy-post" rel="alternate" type="text/html" title="Proxy inverso y Rocket.Chat" /><published>2021-05-15T00:00:00+02:00</published><updated>2021-05-15T00:00:00+02:00</updated><id>/blog/proxy-post</id><content type="html" xml:base="/blog/proxy-post">&lt;p&gt;Existen varias formas de implementar un proxy inverso para Rocket.Chat. Veremos algunas, de las 
 más interesantes, y después veremos como implementarlo en nuestro proyecto.&lt;/p&gt;
 
 &lt;ul&gt;
@@ -122,7 +122,7 @@ con NGinx:&lt;/p&gt;
   &lt;li&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/user3.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/user3.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
 
 &lt;div&gt;
 
@@ -175,12 +175,12 @@ de Administración.&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap1.png&quot; width=&quot;1000&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap1.png&quot; width=&quot;1000&quot; /&gt;&lt;/div&gt;
 &lt;p&gt;&lt;br /&gt;
 Una vez ahí, se nos desplegará un listado con varias opciones. Nos tendremos que ir a la sección de
 Configuración y, para que sea más sencillo, poner en el buscador “LDAP” y acceder:&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap2.png&quot; width=&quot;300&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap2.png&quot; width=&quot;300&quot; /&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -247,7 +247,7 @@ siguientes opciones para nuestro uso personal:&lt;/p&gt;
     &lt;p&gt;En nuestro caso, hemos creado un servidor LDAP con unos datos de prueba, así que usaremos 
   el siguiente:&lt;/p&gt;
 
-    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap3.png&quot; width=&quot;600&quot; /&gt;&lt;/div&gt;
+    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap3.png&quot; width=&quot;600&quot; /&gt;&lt;/div&gt;
 
     &lt;ul&gt;
       &lt;li&gt;&lt;strong&gt;Nivel de Registro interno&lt;/strong&gt; –&amp;gt; Deshabilitado&lt;/li&gt;
@@ -258,7 +258,7 @@ siguientes opciones para nuestro uso personal:&lt;/p&gt;
 &lt;p&gt;A partir de aquí, ya se podría comprobar la conexión con el botón de color azul. También, en cualquier
 caso, podemos restablecer la configuración de esta sección.&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap4.png&quot; width=&quot;500&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap4.png&quot; width=&quot;500&quot; /&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -278,7 +278,7 @@ importante para configurar LDAP. En ella, nos encontramos las siguientes opcione
     &lt;p&gt;El usuario usado para realizar las búsquedas de usuarios y para autenticarlos. Usualmente,
   se utiliza el administrador del servidor LDAP.&lt;/p&gt;
 
-    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap5.png&quot; width=&quot;500&quot; /&gt;&lt;/div&gt;
+    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap5.png&quot; width=&quot;500&quot; /&gt;&lt;/div&gt;
 
     &lt;ul&gt;
       &lt;li&gt;&lt;strong&gt;Contraseña&lt;/strong&gt;&lt;/li&gt;
@@ -309,7 +309,7 @@ Rocket.Chat. Esta sección dispone de las siguientes opciones:&lt;/p&gt;
     &lt;p&gt;El campo que se utilizará para vincular al usuario LDAP y el usuario Rocket.Chat. Dejar el valor
   por defecto.&lt;/p&gt;
 
-    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap6.png&quot; width=&quot;500&quot; /&gt;&lt;/div&gt;
+    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap6.png&quot; width=&quot;500&quot; /&gt;&lt;/div&gt;
 
     &lt;ul&gt;
       &lt;li&gt;&lt;strong&gt;Dominio Predeterminado&lt;/strong&gt;&lt;/li&gt;
@@ -318,7 +318,7 @@ Rocket.Chat. Esta sección dispone de las siguientes opciones:&lt;/p&gt;
     &lt;p&gt;Se usa para crear un correo electrónico exclusivo para los usuarios donde el correo electrónico
   no se haya implementado mediante LDAP. Nosotros usaremos el siguiente:&lt;/p&gt;
 
-    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap7.png&quot; width=&quot;500&quot; /&gt;&lt;/div&gt;
+    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap7.png&quot; width=&quot;500&quot; /&gt;&lt;/div&gt;
 
     &lt;ul&gt;
       &lt;li&gt;
@@ -341,7 +341,7 @@ Rocket.Chat. Esta sección dispone de las siguientes opciones:&lt;/p&gt;
 
     &lt;p&gt;Nosotros lo hemos configurado de la siguiente forma:&lt;/p&gt;
 
-    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap8.png&quot; width=&quot;600&quot; /&gt;&lt;/div&gt;
+    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap8.png&quot; width=&quot;600&quot; /&gt;&lt;/div&gt;
 
     &lt;ul&gt;
       &lt;li&gt;
@@ -361,7 +361,7 @@ Rocket.Chat. Esta sección dispone de las siguientes opciones:&lt;/p&gt;
 
     &lt;p&gt;Filtro usado para verificar que un usuario pertenece a un grupo. Dejar el valor por defecto:&lt;/p&gt;
 
-    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap9.png&quot; width=&quot;600&quot; /&gt;&lt;/div&gt;
+    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap9.png&quot; width=&quot;600&quot; /&gt;&lt;/div&gt;
 
     &lt;ul&gt;
       &lt;li&gt;&lt;strong&gt;Base DN de grupos LDAP&lt;/strong&gt;&lt;/li&gt;
@@ -376,7 +376,7 @@ Rocket.Chat. Esta sección dispone de las siguientes opciones:&lt;/p&gt;
     &lt;p&gt;Mapea los grupos de LDAP a los roles de usuario de Rocket.Chat. No hemos tocado más allá del
   valor por defecto:&lt;/p&gt;
 
-    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap10.png&quot; width=&quot;600&quot; /&gt;&lt;/div&gt;
+    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap10.png&quot; width=&quot;600&quot; /&gt;&lt;/div&gt;
 
     &lt;ul&gt;
       &lt;li&gt;&lt;strong&gt;Sincronizar automáticamente los grupos de LDAP a Channels&lt;/strong&gt; –&amp;gt; OFF&lt;/li&gt;
@@ -392,7 +392,7 @@ Rocket.Chat. Esta sección dispone de las siguientes opciones:&lt;/p&gt;
     &lt;p&gt;Administrador por defecto en caso de que se creen automáticamente canales que no existan
   durante la sincronización. Dejaremos el usuario por defecto&lt;/p&gt;
 
-    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap11.png&quot; width=&quot;500&quot; /&gt;&lt;/div&gt;
+    &lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap11.png&quot; width=&quot;500&quot; /&gt;&lt;/div&gt;
 
     &lt;ul&gt;
       &lt;li&gt;&lt;strong&gt;Mapa del Channel Grupo LDAP&lt;/strong&gt;&lt;/li&gt;
@@ -443,7 +443,7 @@ Rocket.Chat. Esta sección dispone de las siguientes opciones:&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap12.png&quot; width=&quot;300&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap12.png&quot; width=&quot;300&quot; /&gt;&lt;/div&gt;
 
 &lt;p&gt;Una vez realizado los cambios, ya tendríamos una configuración inicial de LDAP. Lo único ya sería 
 esperar a que se conecte al servidor y se sincronicen los usuarios de LDAP.&lt;/p&gt;
@@ -451,7 +451,7 @@ esperar a que se conecte al servidor y se sincronicen los usuarios de LDAP.&lt;/
 &lt;p&gt;Una vez haya terminado la sincronización, podremos acceder a los usuarios en la siguiente pestaña
 Administración &amp;gt; Usuarios:&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap13.png&quot; width=&quot;1000&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap13.png&quot; width=&quot;1000&quot; /&gt;&lt;/div&gt;
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 
 &lt;p&gt;Los usuarios añadidos mediante LDAP en nuestro caso serán los mismos añadidos mediante este fichero:&lt;/p&gt;
@@ -606,11 +606,11 @@ Ahora iremos comentando una por una, las características que tiene y parándono
 &lt;p&gt;Esta información se halla una vez desplegada la aplicación en el botón superior izquierdo de nuestro
 perfil:&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/ldap1.png&quot; width=&quot;600&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap1.png&quot; width=&quot;600&quot; /&gt;&lt;/div&gt;
 
 &lt;p&gt;Y se nos presentará la siguiente pestaña:&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin1.png&quot; width=&quot;300&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin1.png&quot; width=&quot;300&quot; /&gt;&lt;/div&gt;
 
 &lt;p&gt;En ella nos encontramos las siguientes configuraciones:&lt;/p&gt;
 
@@ -621,7 +621,7 @@ perfil:&lt;/p&gt;
 &lt;p&gt;En esta pestaña podemos encontrar datos del despliegue de Rocket.Chat, así como de los usuarios existentes
 u de las salas que están creadas en el servidor.&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin2.png&quot; width=&quot;1000&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin2.png&quot; width=&quot;1000&quot; /&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -635,7 +635,7 @@ autenticación LDAP u por correo, etc.&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin3.png&quot; width=&quot;1000&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin3.png&quot; width=&quot;1000&quot; /&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;A continuación, nos encontramos con la pestaña de &lt;strong&gt;Salas&lt;/strong&gt;.&lt;/li&gt;
@@ -644,7 +644,7 @@ autenticación LDAP u por correo, etc.&lt;/p&gt;
 &lt;p&gt;Desde aquí podemos administrar las diferentes salas y poder filtrarlas para modificar su nombre, la
 descripción, el tema, etc.&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin4.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin4.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Otra pestaña es la de &lt;strong&gt;Invites&lt;/strong&gt;.&lt;/li&gt;
@@ -653,7 +653,7 @@ descripción, el tema, etc.&lt;/p&gt;
 &lt;p&gt;Esta pestaña nos muestra todas los enlaces generados para añadir a un usuario a un espacio de trabajo
 u sala. En resumidas cuentas, todas las invitaciones generadas.&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin5.png&quot; width=&quot;1000&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin5.png&quot; width=&quot;1000&quot; /&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -682,7 +682,7 @@ u sala. En resumidas cuentas, todas las invitaciones generadas.&lt;/p&gt;
 &lt;p&gt;Para usar este y otros servicios de Rocket.Chat, el servidor debe estar conectado a &lt;em&gt;cloud.rocket.chat&lt;/em&gt;.
 Puedes seguir los siguientes pasos para conectarte &lt;a href=&quot;https://docs.rocket.chat/guides/administrator-guides/administration/connectivity-services&quot;&gt;aquí&lt;/a&gt;.&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin6.png&quot; width=&quot;500&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin6.png&quot; width=&quot;500&quot; /&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;La siguiente pestaña es &lt;strong&gt;Ver Registros&lt;/strong&gt;&lt;/li&gt;
@@ -690,7 +690,7 @@ Puedes seguir los siguientes pasos para conectarte &lt;a href=&quot;https://docs
 
 &lt;p&gt;En esta sección se puede observar un pequeño log de lo que está pasando en el servidor&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin7.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin7.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Otra de las secciones trata sobre &lt;strong&gt;Sonidos personalizados&lt;/strong&gt;&lt;/li&gt;
@@ -699,7 +699,7 @@ Puedes seguir los siguientes pasos para conectarte &lt;a href=&quot;https://docs
 &lt;p&gt;Aquí, podemos añadir diferentes ficheros de audio en formato MP3 para su posterior uso como sonido de
 notificaciones. Estas opciones se pueden cambiar en &lt;em&gt;Preferencias&lt;/em&gt;.&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin8.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin8.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -726,7 +726,7 @@ para poder visualizar los diferentes correos que llegan a dicha dirección.&lt;/
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin9.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin9.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
 
 &lt;p&gt;Esta sección es una de las pocas secciones que está en versión &lt;em&gt;Alpha&lt;/em&gt;.&lt;/p&gt;
 
@@ -735,7 +735,7 @@ para poder visualizar los diferentes correos que llegan a dicha dirección.&lt;/
 uso público.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin10.png&quot; width=&quot;1000&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin10.png&quot; width=&quot;1000&quot; /&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Rocket.Chat también dispone de una sección para &lt;strong&gt;Integraciones&lt;/strong&gt;.&lt;/li&gt;
@@ -745,7 +745,7 @@ uso público.&lt;/li&gt;
 servicio quien controle parte del servidor (Incoming) o que sea el servidor quien se encargue de
 ejecutar dicho script cuando sea necesario (Outgoing).&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin11.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin11.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
 
 &lt;p&gt;Alguna de las integraciones pueden &lt;em&gt;Jira&lt;/em&gt;, &lt;em&gt;Gitlab&lt;/em&gt;, &lt;em&gt;Github&lt;/em&gt;, etc.&lt;/p&gt;
 
@@ -756,13 +756,13 @@ ejecutar dicho script cuando sea necesario (Outgoing).&lt;/p&gt;
 &lt;p&gt;Permite añadir diferentes aplicaciones que redigiran a los usuarios para que se autentiquen.
 De manera predeterminada, solo disponemos de una llamada &lt;em&gt;Zapier&lt;/em&gt;, pero podemos añadir más aquí:&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin12.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin12.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;La sección de &lt;strong&gt;Remitente&lt;/strong&gt; permite enviar correos electrónicos.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin13.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin13.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Otra de las secciones es &lt;strong&gt;Estado de usuario personalizado&lt;/strong&gt;.&lt;/li&gt;
@@ -777,7 +777,7 @@ De manera predeterminada, solo disponemos de una llamada &lt;em&gt;Zapier&lt;/em
 &lt;p&gt;Desde aquí, podemos gestionar las diferentes acciones y configuraciones que pueden tomar los diferentes 
 roles en nuestro servidor Rocket.Chat.&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/admin14.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin14.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
 
 &lt;p&gt;Además de estas secciones, dentro de la pestaña de &lt;em&gt;Configuración&lt;/em&gt;, nos encontramos con la sección
 &lt;strong&gt;General&lt;/strong&gt; teniendo esta las siguientes secciones:&lt;/p&gt;
@@ -897,17 +897,17 @@ servidor.&lt;/p&gt;
 &lt;p&gt;Para ello, vamos a acceder a nuestro servidor web y vamos a introducir unas nuevas credenciales para
 un usuario de prueba:&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/user3.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/user3.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
 &lt;p&gt;&lt;br /&gt;
 Acto seguido, nos aparecerá una nueva ventana que nos pedirá el nombre de usuario que se va a ver en 
 el servidor:&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/user4.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/user4.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
 &lt;p&gt;&lt;br /&gt;
 Y ya tendríamos acceso al servidor como un usuario sin permisos (de manera predeterminada, se puede 
 cambiar más adelante)&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/user5.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/user5.png&quot; width=&quot;800&quot; /&gt;&lt;/div&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Después tenemos la conexión mediante la &lt;strong&gt;aplicación de escritorio&lt;/strong&gt;.&lt;/li&gt;
@@ -928,12 +928,12 @@ Simplemente, debes pulsar el icono &lt;em&gt;+&lt;/em&gt; para añadir un nuevo 
 &lt;p&gt;Una vez nos la descarguemos, al abrirla, nos aparecerán dos opciones, la primera que nos permitirá 
 unirnos a un workspace o la otra, que nos permite crearla.&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/user1.jpg&quot; width=&quot;300&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/user1.jpg&quot; width=&quot;300&quot; /&gt;&lt;/div&gt;
 &lt;p&gt;&lt;br /&gt;
 En caso de querer unirnos, nos aparecerá la siguiente ventana en la cual tendremos que incorporar la URL
 del sitio. (Dicha información se encuentra en la sección &lt;em&gt;General&lt;/em&gt; en la pestaña de Administración)&lt;/p&gt;
 
-&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/assets/images/user2.jpg&quot; width=&quot;300&quot; /&gt;&lt;/div&gt;
+&lt;div style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/user2.jpg&quot; width=&quot;300&quot; /&gt;&lt;/div&gt;
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 
 &lt;p&gt;Y hasta aquí el post de las diferentes conexiones de los usuarios.&lt;/p&gt;
@@ -954,7 +954,7 @@ vamos a utilizar.&lt;/p&gt;
 &lt;p&gt;&lt;br /&gt;
 Demo de la descarga:&lt;/p&gt;
 
-&lt;div align=&quot;center&quot;&gt;&lt;img src=&quot;/assets/images/descarga-imagen.gif&quot; /&gt;&lt;/div&gt;
+&lt;div align=&quot;center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/descarga-imagen.gif&quot; /&gt;&lt;/div&gt;
 &lt;p&gt;&lt;br /&gt;
 Una vez bajada dicha imagen, en caso de querer ejecutar Rocket.Chat sobre &lt;em&gt;systemd&lt;/em&gt; vamos a seguir los
 siguientes pasos:&lt;/p&gt;
@@ -1053,7 +1053,7 @@ Docker:&lt;/p&gt;
       mongo mongo/rocketchat --eval &quot;rs.initiate({ _id: 'rs0', members: [ { _id: 0, host: 'localhost:27017' } ]})&quot;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;div align=&quot;center&quot;&gt;&lt;img src=&quot;/assets/images/contenedor-mongo.gif&quot; /&gt;&lt;/div&gt;
+&lt;div align=&quot;center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/contenedor-mongo.gif&quot; /&gt;&lt;/div&gt;
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 
 &lt;ul&gt;
@@ -1212,12 +1212,12 @@ a que &lt;em&gt;mongo&lt;/em&gt; esté listo.&lt;/p&gt;
 &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker-compose up -d
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;div align=&quot;center&quot;&gt;&lt;img src=&quot;/assets/images/despliegue-compose.gif&quot; /&gt;&lt;/div&gt;
+&lt;div align=&quot;center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/despliegue-compose.gif&quot; /&gt;&lt;/div&gt;
 &lt;p&gt;&lt;br /&gt;
 Podemos ver las características del despliegue:
 &lt;br /&gt;&lt;/p&gt;
 
-&lt;div align=&quot;center&quot;&gt;&lt;img src=&quot;/assets/images/docker-ps.gif&quot; /&gt;&lt;/div&gt;
+&lt;div align=&quot;center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/docker-ps.gif&quot; /&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 
@@ -1234,7 +1234,7 @@ como backend, pero esta es una opción a tener en cuenta más adelante.&lt;/p&gt
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 
-&lt;div align=&quot;center&quot;&gt;&lt;img src=&quot;/assets/images/acceso-docker.gif&quot; /&gt;&lt;/div&gt;
+&lt;div align=&quot;center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/acceso-docker.gif&quot; /&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 
@@ -1242,7 +1242,7 @@ como backend, pero esta es una opción a tener en cuenta más adelante.&lt;/p&gt
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 
-&lt;div align=&quot;center&quot;&gt;&lt;img src=&quot;/assets/images/inicio-sesion.gif&quot; /&gt;&lt;/div&gt;
+&lt;div align=&quot;center&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/inicio-sesion.gif&quot; /&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 

@@ -1,7 +1,7 @@
 ---
 title: Proxy inverso y Rocket.Chat
 layout: post
-post-image: /assets/images/proxy.png
+post-image: https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/proxy.png
 description: En este post veremos las formas que hay para configurar un proxy inverso para 
  desplegar el servidor Rocket.Chat.
 tags:
@@ -129,7 +129,7 @@ con NGinx:
 
  * 
 
-<div style="text-align: center"><img src="/assets/images/user3.png" width="800" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/user3.png" width="800" /></div>
 
 <div>
 

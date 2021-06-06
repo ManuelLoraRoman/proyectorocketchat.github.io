@@ -1,7 +1,7 @@
 ---
 title: Cumplimiento de Rocket.Chat
 layout: post
-post-image: /assets/images/user.jpg
+post-image: https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/user.jpg
 description: Este post tratará sobre las diferentes formas que tiene un usuario de realizar
   la conexión a la aplicación, además de ver las diferentes características de los usuarios.
 tags:

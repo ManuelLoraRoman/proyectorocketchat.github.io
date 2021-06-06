@@ -1,7 +1,7 @@
 ---
 title: Opciones de Administrador
 layout: post
-post-image: /assets/images/admin.jpg
+post-image: https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin.jpg
 description: En este post veremos las diferentes opciones de las que disponen los administradores
   para permitir o no, diferentes configuraciones.
 tags:
@@ -16,11 +16,11 @@ Ahora iremos comentando una por una, las características que tiene y parándono
 Esta información se halla una vez desplegada la aplicación en el botón superior izquierdo de nuestro
 perfil:
 
-<div style="text-align: center"><img src="/assets/images/ldap1.png" width="600" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/ldap1.png" width="600" /></div>
 
 Y se nos presentará la siguiente pestaña:
 
-<div style="text-align: center"><img src="/assets/images/admin1.png" width="300" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin1.png" width="300" /></div>
 
 En ella nos encontramos las siguientes configuraciones:
 
@@ -29,7 +29,7 @@ En ella nos encontramos las siguientes configuraciones:
 En esta pestaña podemos encontrar datos del despliegue de Rocket.Chat, así como de los usuarios existentes
 u de las salas que están creadas en el servidor.
 
-<div style="text-align: center"><img src="/assets/images/admin2.png" width="1000" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin2.png" width="1000" /></div>
 
 * Después, disponemos de la pestaña **Importación** en la cual, podemos importar datos de otras 
 aplicaciones como Slack, CSV o Hipchat.
@@ -38,21 +38,21 @@ aplicaciones como Slack, CSV o Hipchat.
 Rocket.Chat. Esta lista se irá rellenando dependiendo de si los usuarios entran al servidor mediante
 autenticación LDAP u por correo, etc.
 
-<div style="text-align: center"><img src="/assets/images/admin3.png" width="1000" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin3.png" width="1000" /></div>
 
 * A continuación, nos encontramos con la pestaña de **Salas**.
 
 Desde aquí podemos administrar las diferentes salas y poder filtrarlas para modificar su nombre, la
 descripción, el tema, etc.
 
-<div style="text-align: center"><img src="/assets/images/admin4.png" width="800" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin4.png" width="800" /></div>
 
 * Otra pestaña es la de **Invites**.
 
 Esta pestaña nos muestra todas los enlaces generados para añadir a un usuario a un espacio de trabajo
 u sala. En resumidas cuentas, todas las invitaciones generadas.
 
-<div style="text-align: center"><img src="/assets/images/admin5.png" width="1000" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin5.png" width="1000" /></div>
 
 * La siguiente pestaña que nos encontraremos es la de **Servicios de conectividad**.
 
@@ -70,20 +70,20 @@ u sala. En resumidas cuentas, todas las invitaciones generadas.
 Para usar este y otros servicios de Rocket.Chat, el servidor debe estar conectado a *cloud.rocket.chat*.
 Puedes seguir los siguientes pasos para conectarte [aquí](https://docs.rocket.chat/guides/administrator-guides/administration/connectivity-services).
 
-<div style="text-align: center"><img src="/assets/images/admin6.png" width="500" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin6.png" width="500" /></div>
 
 * La siguiente pestaña es **Ver Registros**
 
 En esta sección se puede observar un pequeño log de lo que está pasando en el servidor
 
-<div style="text-align: center"><img src="/assets/images/admin7.png" width="800" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin7.png" width="800" /></div>
 
 * Otra de las secciones trata sobre **Sonidos personalizados**
 
 Aquí, podemos añadir diferentes ficheros de audio en formato MP3 para su posterior uso como sonido de
 notificaciones. Estas opciones se pueden cambiar en *Preferencias*.
 
-<div style="text-align: center"><img src="/assets/images/admin8.png" width="800" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin8.png" width="800" /></div>
 
 * La siguiente sección se llama **Federation DashBoard** y esta se encuentra todavía bajo construcción.
 
@@ -100,14 +100,14 @@ sin tener que bifurcar el código base. Si desea obtener más información, pued
 * La sección **Bandejas de entrada de correo electrónico** nos permite introducir direcciones de correo
 para poder visualizar los diferentes correos que llegan a dicha dirección.
 
-<div style="text-align: center"><img src="/assets/images/admin9.png" width="800" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin9.png" width="800" /></div>
 
 Esta sección es una de las pocas secciones que está en versión *Alpha*.
 
 * La sección **Emoji personalizado**, permite subir una imagen y añadirla al servidor como emoji para
 uso público.
 
-<div style="text-align: center"><img src="/assets/images/admin10.png" width="1000" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin10.png" width="1000" /></div>
 
 * Rocket.Chat también dispone de una sección para **Integraciones**.
 
@@ -115,7 +115,7 @@ Esta sección nos permite integrar algunos servicios externos en forma de Script
 servicio quien controle parte del servidor (Incoming) o que sea el servidor quien se encargue de
 ejecutar dicho script cuando sea necesario (Outgoing).
 
-<div style="text-align: center"><img src="/assets/images/admin11.png" width="800" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin11.png" width="800" /></div>
 
 Alguna de las integraciones pueden *Jira*, *Gitlab*, *Github*, etc.
 
@@ -124,11 +124,11 @@ Alguna de las integraciones pueden *Jira*, *Gitlab*, *Github*, etc.
 Permite añadir diferentes aplicaciones que redigiran a los usuarios para que se autentiquen.
 De manera predeterminada, solo disponemos de una llamada *Zapier*, pero podemos añadir más aquí:
 
-<div style="text-align: center"><img src="/assets/images/admin12.png" width="800" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin12.png" width="800" /></div>
 
 * La sección de **Remitente** permite enviar correos electrónicos.
 
-<div style="text-align: center"><img src="/assets/images/admin13.png" width="800" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin13.png" width="800" /></div>
 
 * Otra de las secciones es **Estado de usuario personalizado**.
 
@@ -139,7 +139,7 @@ En ella, podemos cambiar nuestro estado de perfil en vez de usar la predetermina
 Desde aquí, podemos gestionar las diferentes acciones y configuraciones que pueden tomar los diferentes 
 roles en nuestro servidor Rocket.Chat.
 
-<div style="text-align: center"><img src="/assets/images/admin14.png" width="800" /></div>
+<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/admin14.png" width="800" /></div>
 
 Además de estas secciones, dentro de la pestaña de *Configuración*, nos encontramos con la sección
 **General** teniendo esta las siguientes secciones:
