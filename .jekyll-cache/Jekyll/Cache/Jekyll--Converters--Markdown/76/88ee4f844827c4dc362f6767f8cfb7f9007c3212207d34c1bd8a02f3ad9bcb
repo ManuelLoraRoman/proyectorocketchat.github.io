@@ -1,0 +1,33 @@
+I"�<p>Rocket.Chat cumple con los recursos necesarios para con los estándares de la industria, así como
+de cumplir con las regulaciones oportunas y buena praxis.</p>
+
+<ul>
+  <li><strong>ISO 27001 certification</strong></li>
+</ul>
+
+<div align="center"></div>
+
+<p>Es un estándar internacional reconocido para la gestión de seguridad de la información.
+Rocket.Chat es auditada anualmente por un auditor externo independiente para verificar el diseño
+y efectividad operativa del sistema de gestión.</p>
+
+<p>El certificado puedes encontrarlo <a href="https://firebasestorage.googleapis.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-M418Ul0aSTwf2PYsyPW%2F-MDtXV36JZ1zcOI-4hhI%2F-MDtlBAVE2fi6vshtNJL%2FCertificate%202020.pdf?alt=media&amp;token=f105048d-5843-405d-8b09-5b5b8fed9e7c">aquí</a>.</p>
+
+<ul>
+  <li><strong>Cloud Security Alliance (CSA)</strong></li>
+</ul>
+
+<p>Rocket.Chat, publicó un cuestionario en el registro STAR de la CSA. La CSA es la primera organización 
+en la estandarización y mejora de la seguridad en cloud-computing.</p>
+
+<p>Puedes encontrar esta información <a href="https://cloudsecurityalliance.org/star/registry/rocket-chat">aquí</a></p>
+
+<div>
+
+ <span style="margin-right:980px;text-align:left;color:blue" onclick="document.location.href = 'ldap-post'; return false">&lt; Configuración LDAP</span>
+
+ <span style="margin-left:0px;float:right;color:blue" onclick="document.location.href = 'admin-post'; return false">Opciones de administrador &gt;</span>
+
+</div>
+
+:ET

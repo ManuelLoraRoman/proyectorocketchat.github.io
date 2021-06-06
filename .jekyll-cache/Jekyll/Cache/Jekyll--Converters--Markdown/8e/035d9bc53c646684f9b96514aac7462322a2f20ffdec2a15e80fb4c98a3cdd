@@ -1,0 +1,175 @@
+I"!<p>Es posible, como hemos visto en clase, que se puede automatizar el proceso de creación de 
+contenedores mediante un fichero <em>.yml</em>. Por lo tanto, vamos a crear ese fichero con el siguiente
+contenido:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>version: '2'
+
+services:
+  rocketchat:
+    image: rocketchat/rocket.chat:latest
+    command: &gt;
+      bash -c
+        "for i in `seq 1 30`; do
+          node main.js &amp;&amp;
+          s=$$? &amp;&amp; break || s=$$?;
+          echo \"Tried $$i times. Waiting 5 secs...\";
+          sleep 5;
+        done; (exit $$s)"
+    restart: unless-stopped
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      - PORT=3000
+      - ROOT_URL=http://localhost:3000
+      - MONGO_URL=mongodb://mongo:27017/rocketchat
+      - MONGO_OPLOG_URL=mongodb://mongo:27017/local
+      - MAIL_URL=smtp://smtp.email
+#       - HTTP_PROXY=http://proxy.domain.com
+#       - HTTPS_PROXY=http://proxy.domain.com
+    depends_on:
+      - mongo
+    ports:
+      - 3000:3000
+    labels:
+      - "traefik.backend=rocketchat"
+      - "traefik.frontend.rule=Host: your.domain.tld"
+
+  mongo:
+    image: mongo:4.0
+    restart: unless-stopped
+    volumes:
+     - ./data/db:/data/db
+     #- ./data/dump:/dump
+    command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
+    labels:
+      - "traefik.enable=false"
+
+  # this container's job is just run the command to initialize the replica set.
+  # it will run the command and remove himself (it will not stay running)
+  mongo-init-replica:
+    image: mongo:4.0
+    command: &gt;
+      bash -c
+        "for i in `seq 1 30`; do
+          mongo mongo/rocketchat --eval \"
+            rs.initiate({
+              _id: 'rs0',
+              members: [ { _id: 0, host: 'localhost:27017' } ]})\" &amp;&amp;
+          s=$$? &amp;&amp; break || s=$$?;
+          echo \"Tried $$i times. Waiting 5 secs...\";
+          sleep 5;
+        done; (exit $$s)"
+    depends_on:
+      - mongo
+
+  # hubot, the popular chatbot (add the bot user first and change the password before starting this imag$
+  hubot:
+    image: rocketchat/hubot-rocketchat:latest
+    restart: unless-stopped
+    environment:
+      - ROCKETCHAT_URL=rocketchat:3000
+      - ROCKETCHAT_ROOM=GENERAL
+      - ROCKETCHAT_USER=bot
+      - ROCKETCHAT_PASSWORD=botpassword
+      - BOT_NAME=bot
+  # you can add more scripts as you'd like here, they need to be installable by npm
+      - EXTERNAL_SCRIPTS=hubot-help,hubot-seen,hubot-links,hubot-diagnostics
+    depends_on:
+      - rocketchat
+    labels:
+      - "traefik.enable=false"
+    volumes:
+      - ./scripts:/home/hubot/scripts
+  # this is used to expose the hubot port for notifications on the host on port 3001, e.g. for hubot-jen$
+    ports:
+      - 3001:8080
+
+  #traefik:
+  #  image: traefik:latest
+  #  restart: unless-stopped
+  #  command: &gt;
+  #    traefik
+  #     --docker
+  #     --acme=true
+  #     --acme.domains='your.domain.tld'
+  #     --acme.email='your@email.tld'
+  #     --acme.entrypoint=https
+  #     --acme.storagefile=acme.json
+  #     --defaultentrypoints=http
+  #     --defaultentrypoints=https
+  #     --entryPoints='Name:http Address::80 Redirect.EntryPoint:https'
+  #     --entryPoints='Name:https Address::443 TLS.Certificates:'
+  #  ports:
+  #    - 80:80
+  #    - 443:443
+  #  volumes:
+  #    - /var/run/docker.sock:/var/run/docker.sock
+
+</code></pre></div></div>
+<p><br />
+Este fichero dockercompose realizará lo siguiente:</p>
+
+<ul>
+  <li>
+    <p>De primeras, inicia el servicio de <em>mongo</em>.</p>
+  </li>
+  <li>
+    <p>Después inicia otro servicio llamado <em>mongo-init-replica</em>, que esperará a que el servicio de mongo
+esté listo, para conectarse a él e inicializarlo.</p>
+  </li>
+  <li>
+    <p>Por último, inicia el servicio de Rocket.Chat, que al igual que el anterior servicio, esperará
+a que <em>mongo</em> esté listo.</p>
+  </li>
+</ul>
+
+<p>Para iniciar el escenario que hemos montado, vamos a ejecutar el siguiente comando:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker-compose up -d
+</code></pre></div></div>
+<p><br /></p>
+<div align="center"><img src="/assets/images/despliegue-compose.gif" /></div>
+<p><br />
+Podemos ver las características del despliegue:
+<br /></p>
+
+<div align="center"><img src="/assets/images/docker-ps.gif" /></div>
+
+<p><br /></p>
+
+<p>Y ya tendríamos nuestra aplicación de Rocket.Chat funcionando.
+<br /></p>
+
+<p>En caso de querer manejar logs y demás, podemos descomentar las líneas del montaje de volúmenes.</p>
+
+<p>También es posible instalar Rocket.Chat en alta disponibilidad con un replicaset de <em>Mongodb</em> 
+como backend, pero esta es una opción a tener en cuenta más adelante.</p>
+
+<p>Una vez ya desplegado, veremos la IP de acceso de la máquina deploy_rocketchat_1 (en mi caso, 
+172.18.0.3) y accederemos mediante el navegador:</p>
+
+<p><br /></p>
+
+<div align="center"><img src="/assets/images/acceso-docker.gif" /></div>
+
+<p><br /></p>
+
+<p>Y una vez en la página, podemos iniciar sesión de manera normal:</p>
+
+<p><br /></p>
+
+<div align="center"><img src="/assets/images/inicio-sesion.gif" /></div>
+
+<p><br /></p>
+
+<p>A continuación, vamos a pasar al apartado de conexión de usuario.</p>
+
+<div>
+
+ <span style="margin-right:980px;text-align:left;color:blue" onclick="document.location.href = 'systemd-post'; return false">&lt; Instalación mediante systemd</span>
+
+ <span style="margin-left:0px;float:right;color:blue" onclick="document.location.href = 'user-post'; return false">Conexiones y usuarios &gt;</span>
+
+</div>
+
+:ET
