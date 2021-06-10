@@ -11,11 +11,11 @@ title: Rocket.Chat
 # Description of the Site
 description: Proyecto sobre Rocket.Chat para el curso de ASIR en el IES Gonzalo Nazareno
 # URL of Image of the Site
-site-image: https://github.com/ManuelLoraRoman/proyectorocketchat.github.io/blob/main/assets/images/meta.jpg
+site-image: https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/meta.jpg
 # Keywords of the Site
 site-keywords: Site, Rocket.Chat, Slack, Communication
 # URL for the Image of custom Favicon
-favicon-url: https://github.com/ManuelLoraRoman/proyectorocketchat.github.io/blob/main/assets/images/favicon-16x16.png
+favicon-url: https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/favicon-16x16.png
 
 # URL of the Image of Custom Hero Image (i.e., the image in the background of the very first section of the Homepage)
 heroimage: https://images.pexels.com/photos/220444/pexels-photo-220444.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940
