@@ -1,9 +1,9 @@
 - name: Proyecto RocketChat
   image: https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/1075x720-Introduction-Placeholder.png
-  link: 
+  link: https://manuelloraroman.github.io/proyectorocketchat.github.io/blog
   description: Proyecto para dockerizar un RocketChat con proxy inverso y configuración LDAP
 
 - name: Otros Proyectos
   image: https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/IESGN.jpeg
-  link: 
+  link: https://github.com/ManuelLoraRoman/ApuntesASIR
   description: Otros proyectos realizados durante el curso en IES Gonzalo Nazareno
