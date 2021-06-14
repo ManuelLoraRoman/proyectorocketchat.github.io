@@ -133,9 +133,7 @@ con NGinx:
 
 <div>
 
- <span style="margin-right:980px;text-align:left;color:blue" onclick="document.location.href = 'dockercompose-post'; return false">< Instalación mediante Docker-compose</span>
-
- <span style="margin-left:0px;float:right;color:blue" onclick="document.location.href = 'admin-post'; return false">Opciones de administrador ></span>
+ <span style="margin-right:980px;text-align:left;color:blue" onclick="document.location.href = 'certificate-post'; return false">< Cumplimiento de Rocket.Chat </span>
 
 </div>
 

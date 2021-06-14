@@ -36,7 +36,7 @@ Puedes encontrar esta información [aquí](https://cloudsecurityalliance.org/sta
 
  <span style="margin-right:980px;text-align:left;color:blue" onclick="document.location.href = 'ldap-post'; return false">< Configuración LDAP</span>
 
- <span style="margin-left:0px;float:right;color:blue" onclick="document.location.href = 'admin-post'; return false">Opciones de administrador ></span>
+ <span style="margin-left:0px;float:right;color:blue" onclick="document.location.href = 'proxy-post'; return false">Proxy inverso y Rocket.Chat ></span>
 
 </div>
 
