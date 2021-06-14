@@ -8,8 +8,8 @@ tags:
 - Proxy
 - Connections
 - Rocket.Chat
-- App
-- Certificate
+- Apache
+- Nginx
 ---
 
 Existen varias formas de implementar un proxy inverso para Rocket.Chat. Veremos algunas, de las 
@@ -165,9 +165,10 @@ con NGinx:
 </VirtualHost>
 ```
 
+<br>
+
 Reiniciamos el servicio de apache y ya lo tendríamos funcionando.
 
-<br>
 
 <div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/user3.png" width="800" /></div>
 
