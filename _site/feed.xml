@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-06-06T11:54:11+02:00</updated><id>/feed.xml</id><title type="html">Rocket.Chat</title><subtitle>Proyecto sobre Rocket.Chat para el curso de ASIR en el IES Gonzalo Nazareno</subtitle><entry><title type="html">Proxy inverso y Rocket.Chat</title><link href="/blog/proxy-post" rel="alternate" type="text/html" title="Proxy inverso y Rocket.Chat" /><published>2021-05-15T00:00:00+02:00</published><updated>2021-05-15T00:00:00+02:00</updated><id>/blog/proxy-post</id><content type="html" xml:base="/blog/proxy-post">&lt;p&gt;Existen varias formas de implementar un proxy inverso para Rocket.Chat. Veremos algunas, de las 
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-06-13T10:35:13+02:00</updated><id>/feed.xml</id><title type="html">Rocket.Chat</title><subtitle>Proyecto sobre Rocket.Chat para el curso de ASIR en el IES Gonzalo Nazareno</subtitle><entry><title type="html">Proxy inverso y Rocket.Chat</title><link href="/blog/proxy-post" rel="alternate" type="text/html" title="Proxy inverso y Rocket.Chat" /><published>2021-05-15T00:00:00+02:00</published><updated>2021-05-15T00:00:00+02:00</updated><id>/blog/proxy-post</id><content type="html" xml:base="/blog/proxy-post">&lt;p&gt;Existen varias formas de implementar un proxy inverso para Rocket.Chat. Veremos algunas, de las 
 más interesantes, y después veremos como implementarlo en nuestro proyecto.&lt;/p&gt;
 
 &lt;ul&gt;
@@ -1090,7 +1090,7 @@ contenido:&lt;/p&gt;
 
 services:
   rocketchat:
-    image: rocketchat/rocket.chat:latest
+    image: registry.rocket.chat/rocketchat/rocket.chat:latest
     command: &amp;gt;
       bash -c
         &quot;for i in `seq 1 30`; do
@@ -1104,19 +1104,14 @@ services:
       - ./uploads:/app/uploads
     environment:
       - PORT=3000
-      - ROOT_URL=http://localhost:3000
+      - ROOT_URL=http://rocketchat:3000
       - MONGO_URL=mongodb://mongo:27017/rocketchat
       - MONGO_OPLOG_URL=mongodb://mongo:27017/local
       - MAIL_URL=smtp://smtp.email
-#       - HTTP_PROXY=http://proxy.domain.com
-#       - HTTPS_PROXY=http://proxy.domain.com
     depends_on:
       - mongo
     ports:
       - 3000:3000
-    labels:
-      - &quot;traefik.backend=rocketchat&quot;
-      - &quot;traefik.frontend.rule=Host: your.domain.tld&quot;
 
   mongo:
     image: mongo:4.0
@@ -1124,12 +1119,8 @@ services:
     volumes:
      - ./data/db:/data/db
      #- ./data/dump:/dump
-    command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
-    labels:
-      - &quot;traefik.enable=false&quot;
+    command: mongod --smallfiles --oplogSize 128 --replSet rs0 
 
-  # this container's job is just run the command to initialize the replica set.
-  # it will run the command and remove himself (it will not stay running)
   mongo-init-replica:
     image: mongo:4.0
     command: &amp;gt;
@@ -1138,7 +1129,7 @@ services:
           mongo mongo/rocketchat --eval \&quot;
             rs.initiate({
               _id: 'rs0',
-              members: [ { _id: 0, host: 'localhost:27017' } ]})\&quot; &amp;amp;&amp;amp;
+              members: [ { _id: 0, host: 'mongo:27017' } ]})\&quot; &amp;amp;&amp;amp;
           s=$$? &amp;amp;&amp;amp; break || s=$$?;
           echo \&quot;Tried $$i times. Waiting 5 secs...\&quot;;
           sleep 5;
@@ -1146,48 +1137,44 @@ services:
     depends_on:
       - mongo
 
-  # hubot, the popular chatbot (add the bot user first and change the password before starting this imag$
+#  mongo-init-replica:
+#    image: mongo:4.0
+#    command: 'mongo mongo/rocketchat --eval &quot;rs.initiate({ _id: ''rs0'', members: [ { _id: 0, host: ''localhost:27017'' } ]})&quot;'
+#    depends_on:
+#      - mongo
+
+
+# hubot, the popular chatbot (add the bot user first and change the password before starting this image)
   hubot:
-    image: rocketchat/hubot-rocketchat:latest
-    restart: unless-stopped
+    image: rocketchat/hubot-rocketchat:v0.1.4
     environment:
       - ROCKETCHAT_URL=rocketchat:3000
-      - ROCKETCHAT_ROOM=GENERAL
-      - ROCKETCHAT_USER=bot
-      - ROCKETCHAT_PASSWORD=botpassword
+      - ROCKETCHAT_ROOM=
+      - ROCKETCHAT_USER=rocket.cat
+      - ROCKETCHAT_PASSWORD=password
+      - LISTEN_ON_ALL_PUBLIC=true
       - BOT_NAME=bot
-  # you can add more scripts as you'd like here, they need to be installable by npm
+      - RESPOND_TO_EDITED=true
+      - RESPOND_TO_DM=true
+# you can add more scripts as you'd like here, they need to be installable by npm
       - EXTERNAL_SCRIPTS=hubot-help,hubot-seen,hubot-links,hubot-diagnostics
-    depends_on:
-      - rocketchat
-    labels:
-      - &quot;traefik.enable=false&quot;
-    volumes:
-      - ./scripts:/home/hubot/scripts
-  # this is used to expose the hubot port for notifications on the host on port 3001, e.g. for hubot-jen$
+# this is used to expose the hubot port for notifications on the host on port 3001, e.g. for hubot-jenkins-notifier
     ports:
       - 3001:8080
 
-  #traefik:
-  #  image: traefik:latest
-  #  restart: unless-stopped
-  #  command: &amp;gt;
-  #    traefik
-  #     --docker
-  #     --acme=true
-  #     --acme.domains='your.domain.tld'
-  #     --acme.email='your@email.tld'
-  #     --acme.entrypoint=https
-  #     --acme.storagefile=acme.json
-  #     --defaultentrypoints=http
-  #     --defaultentrypoints=https
-  #     --entryPoints='Name:http Address::80 Redirect.EntryPoint:https'
-  #     --entryPoints='Name:https Address::443 TLS.Certificates:'
-  #  ports:
-  #    - 80:80
-  #    - 443:443
-  #  volumes:
-  #    - /var/run/docker.sock:/var/run/docker.sock
+  smtp:
+    image: namshi/smtp
+    environment:
+      - RELAY_DOMAINS=:example.com:example.de
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./certs/host.example.com.crt:/etc/nginx/cert.crt
+      - ./certs/host.example.com.key:/etc/nginx/cert.key
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 8066:443
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;p&gt;&lt;br /&gt;
@@ -1204,6 +1191,9 @@ esté listo, para conectarse a él e inicializarlo.&lt;/p&gt;
   &lt;li&gt;
     &lt;p&gt;Por último, inicia el servicio de Rocket.Chat, que al igual que el anterior servicio, esperará
 a que &lt;em&gt;mongo&lt;/em&gt; esté listo.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;También iniciará el servicio de smtp y el servicio de nginx que funcionará como proxy inverso.&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
@@ -1246,6 +1236,9 @@ como backend, pero esta es una opción a tener en cuenta más adelante.&lt;/p&gt
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 
+&lt;p&gt;Todo este funcionamiento es si no hemos añadido el proxy inverso a nuestro docker-compose, pero en caso 
+de haberlo añadido, accederemos a la página mediante el server_name de nginx y el puerto correspondiente.&lt;/p&gt;
+
 &lt;p&gt;A continuación, vamos a pasar al apartado de conexión de usuario.&lt;/p&gt;
 
 &lt;div&gt;
@@ -1254,7 +1247,7 @@ como backend, pero esta es una opción a tener en cuenta más adelante.&lt;/p&gt
 
  &lt;span style=&quot;margin-left:0px;float:right;color:blue&quot; onclick=&quot;document.location.href = 'user-post'; return false&quot;&gt;Conexiones y usuarios &amp;gt;&lt;/span&gt;
 
-&lt;/div&gt;</content><author><name></name></author><category term="Docker" /><category term="dockercompose" /><category term="Rocket.Chat" /><category term="Installation" /><summary type="html">Es posible, como hemos visto en clase, que se puede automatizar el proceso de creación de contenedores mediante un fichero .yml. Por lo tanto, vamos a crear ese fichero con el siguiente contenido: version: '2' services: rocketchat: image: rocketchat/rocket.chat:latest command: &amp;gt; bash -c &quot;for i in `seq 1 30`; do node main.js &amp;amp;&amp;amp; s=$$? &amp;amp;&amp;amp; break || s=$$?; echo \&quot;Tried $$i times. Waiting 5 secs...\&quot;; sleep 5; done; (exit $$s)&quot; restart: unless-stopped volumes: - ./uploads:/app/uploads environment: - PORT=3000 - ROOT_URL=http://localhost:3000 - MONGO_URL=mongodb://mongo:27017/rocketchat - MONGO_OPLOG_URL=mongodb://mongo:27017/local - MAIL_URL=smtp://smtp.email # - HTTP_PROXY=http://proxy.domain.com # - HTTPS_PROXY=http://proxy.domain.com depends_on: - mongo ports: - 3000:3000 labels: - &quot;traefik.backend=rocketchat&quot; - &quot;traefik.frontend.rule=Host: your.domain.tld&quot; mongo: image: mongo:4.0 restart: unless-stopped volumes: - ./data/db:/data/db #- ./data/dump:/dump command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1 labels: - &quot;traefik.enable=false&quot; # this container's job is just run the command to initialize the replica set. # it will run the command and remove himself (it will not stay running) mongo-init-replica: image: mongo:4.0 command: &amp;gt; bash -c &quot;for i in `seq 1 30`; do mongo mongo/rocketchat --eval \&quot; rs.initiate({ _id: 'rs0', members: [ { _id: 0, host: 'localhost:27017' } ]})\&quot; &amp;amp;&amp;amp; s=$$? &amp;amp;&amp;amp; break || s=$$?; echo \&quot;Tried $$i times. Waiting 5 secs...\&quot;; sleep 5; done; (exit $$s)&quot; depends_on: - mongo # hubot, the popular chatbot (add the bot user first and change the password before starting this imag$ hubot: image: rocketchat/hubot-rocketchat:latest restart: unless-stopped environment: - ROCKETCHAT_URL=rocketchat:3000 - ROCKETCHAT_ROOM=GENERAL - ROCKETCHAT_USER=bot - ROCKETCHAT_PASSWORD=botpassword - BOT_NAME=bot # you can add more scripts as you'd like here, they need to be installable by npm - EXTERNAL_SCRIPTS=hubot-help,hubot-seen,hubot-links,hubot-diagnostics depends_on: - rocketchat labels: - &quot;traefik.enable=false&quot; volumes: - ./scripts:/home/hubot/scripts # this is used to expose the hubot port for notifications on the host on port 3001, e.g. for hubot-jen$ ports: - 3001:8080 #traefik: # image: traefik:latest # restart: unless-stopped # command: &amp;gt; # traefik # --docker # --acme=true # --acme.domains='your.domain.tld' # --acme.email='your@email.tld' # --acme.entrypoint=https # --acme.storagefile=acme.json # --defaultentrypoints=http # --defaultentrypoints=https # --entryPoints='Name:http Address::80 Redirect.EntryPoint:https' # --entryPoints='Name:https Address::443 TLS.Certificates:' # ports: # - 80:80 # - 443:443 # volumes: # - /var/run/docker.sock:/var/run/docker.sock Este fichero dockercompose realizará lo siguiente: De primeras, inicia el servicio de mongo. Después inicia otro servicio llamado mongo-init-replica, que esperará a que el servicio de mongo esté listo, para conectarse a él e inicializarlo. Por último, inicia el servicio de Rocket.Chat, que al igual que el anterior servicio, esperará a que mongo esté listo. Para iniciar el escenario que hemos montado, vamos a ejecutar el siguiente comando: docker-compose up -d Podemos ver las características del despliegue: Y ya tendríamos nuestra aplicación de Rocket.Chat funcionando. En caso de querer manejar logs y demás, podemos descomentar las líneas del montaje de volúmenes. También es posible instalar Rocket.Chat en alta disponibilidad con un replicaset de Mongodb como backend, pero esta es una opción a tener en cuenta más adelante. Una vez ya desplegado, veremos la IP de acceso de la máquina deploy_rocketchat_1 (en mi caso, 172.18.0.3) y accederemos mediante el navegador: Y una vez en la página, podemos iniciar sesión de manera normal: A continuación, vamos a pasar al apartado de conexión de usuario. &amp;lt; Instalación mediante systemd Conexiones y usuarios &amp;gt;</summary></entry><entry><title type="html">Introducción a Rocket.Chat</title><link href="/blog/introduction-post" rel="alternate" type="text/html" title="Introducción a Rocket.Chat" /><published>2021-04-12T00:00:00+02:00</published><updated>2021-04-12T00:00:00+02:00</updated><id>/blog/introduction-post</id><content type="html" xml:base="/blog/introduction-post">&lt;p&gt;Antes de empezar a hablar sobre Rocket.chat, voy a explicar un poco el porqué utilizar Rocket.Chat 
+&lt;/div&gt;</content><author><name></name></author><category term="Docker" /><category term="dockercompose" /><category term="Rocket.Chat" /><category term="Installation" /><summary type="html">Es posible, como hemos visto en clase, que se puede automatizar el proceso de creación de contenedores mediante un fichero .yml. Por lo tanto, vamos a crear ese fichero con el siguiente contenido: version: '2' services: rocketchat: image: registry.rocket.chat/rocketchat/rocket.chat:latest command: &amp;gt; bash -c &quot;for i in `seq 1 30`; do node main.js &amp;amp;&amp;amp; s=$$? &amp;amp;&amp;amp; break || s=$$?; echo \&quot;Tried $$i times. Waiting 5 secs...\&quot;; sleep 5; done; (exit $$s)&quot; restart: unless-stopped volumes: - ./uploads:/app/uploads environment: - PORT=3000 - ROOT_URL=http://rocketchat:3000 - MONGO_URL=mongodb://mongo:27017/rocketchat - MONGO_OPLOG_URL=mongodb://mongo:27017/local - MAIL_URL=smtp://smtp.email depends_on: - mongo ports: - 3000:3000 mongo: image: mongo:4.0 restart: unless-stopped volumes: - ./data/db:/data/db #- ./data/dump:/dump command: mongod --smallfiles --oplogSize 128 --replSet rs0 mongo-init-replica: image: mongo:4.0 command: &amp;gt; bash -c &quot;for i in `seq 1 30`; do mongo mongo/rocketchat --eval \&quot; rs.initiate({ _id: 'rs0', members: [ { _id: 0, host: 'mongo:27017' } ]})\&quot; &amp;amp;&amp;amp; s=$$? &amp;amp;&amp;amp; break || s=$$?; echo \&quot;Tried $$i times. Waiting 5 secs...\&quot;; sleep 5; done; (exit $$s)&quot; depends_on: - mongo # mongo-init-replica: # image: mongo:4.0 # command: 'mongo mongo/rocketchat --eval &quot;rs.initiate({ _id: ''rs0'', members: [ { _id: 0, host: ''localhost:27017'' } ]})&quot;' # depends_on: # - mongo # hubot, the popular chatbot (add the bot user first and change the password before starting this image) hubot: image: rocketchat/hubot-rocketchat:v0.1.4 environment: - ROCKETCHAT_URL=rocketchat:3000 - ROCKETCHAT_ROOM= - ROCKETCHAT_USER=rocket.cat - ROCKETCHAT_PASSWORD=password - LISTEN_ON_ALL_PUBLIC=true - BOT_NAME=bot - RESPOND_TO_EDITED=true - RESPOND_TO_DM=true # you can add more scripts as you'd like here, they need to be installable by npm - EXTERNAL_SCRIPTS=hubot-help,hubot-seen,hubot-links,hubot-diagnostics # this is used to expose the hubot port for notifications on the host on port 3001, e.g. for hubot-jenkins-notifier ports: - 3001:8080 smtp: image: namshi/smtp environment: - RELAY_DOMAINS=:example.com:example.de nginx: image: nginx:latest volumes: - ./certs/host.example.com.crt:/etc/nginx/cert.crt - ./certs/host.example.com.key:/etc/nginx/cert.key - ./nginx/nginx.conf:/etc/nginx/nginx.conf ports: - 8066:443 Este fichero dockercompose realizará lo siguiente: De primeras, inicia el servicio de mongo. Después inicia otro servicio llamado mongo-init-replica, que esperará a que el servicio de mongo esté listo, para conectarse a él e inicializarlo. Por último, inicia el servicio de Rocket.Chat, que al igual que el anterior servicio, esperará a que mongo esté listo. También iniciará el servicio de smtp y el servicio de nginx que funcionará como proxy inverso. Para iniciar el escenario que hemos montado, vamos a ejecutar el siguiente comando: docker-compose up -d Podemos ver las características del despliegue: Y ya tendríamos nuestra aplicación de Rocket.Chat funcionando. En caso de querer manejar logs y demás, podemos descomentar las líneas del montaje de volúmenes. También es posible instalar Rocket.Chat en alta disponibilidad con un replicaset de Mongodb como backend, pero esta es una opción a tener en cuenta más adelante. Una vez ya desplegado, veremos la IP de acceso de la máquina deploy_rocketchat_1 (en mi caso, 172.18.0.3) y accederemos mediante el navegador: Y una vez en la página, podemos iniciar sesión de manera normal: Todo este funcionamiento es si no hemos añadido el proxy inverso a nuestro docker-compose, pero en caso de haberlo añadido, accederemos a la página mediante el server_name de nginx y el puerto correspondiente. A continuación, vamos a pasar al apartado de conexión de usuario. &amp;lt; Instalación mediante systemd Conexiones y usuarios &amp;gt;</summary></entry><entry><title type="html">Introducción a Rocket.Chat</title><link href="/blog/introduction-post" rel="alternate" type="text/html" title="Introducción a Rocket.Chat" /><published>2021-04-12T00:00:00+02:00</published><updated>2021-04-12T00:00:00+02:00</updated><id>/blog/introduction-post</id><content type="html" xml:base="/blog/introduction-post">&lt;p&gt;Antes de empezar a hablar sobre Rocket.chat, voy a explicar un poco el porqué utilizar Rocket.Chat 
 con contenedores.&lt;/p&gt;
 
 &lt;p&gt;En principio, los contenedores y las máquinas virtuales difieren en varios aspectos pero el principal
@@ -1428,71 +1421,4 @@ bien a nuestro escenario y disponen de la portabilidad que buscamos.&lt;/p&gt;
 
  &lt;span style=&quot;color:blue&quot; onclick=&quot;document.location.href = 'systemd-post'; return false&quot;&gt;Instalación via systemd &amp;gt;&lt;/span&gt;
 
-&lt;/div&gt;</content><author><name></name></author><category term="Introduction" /><category term="Rocket.Chat" /><category term="Communication" /><summary type="html">Antes de empezar a hablar sobre Rocket.chat, voy a explicar un poco el porqué utilizar Rocket.Chat con contenedores. En principio, los contenedores y las máquinas virtuales difieren en varios aspectos pero el principal es que los contenedores ofrecen una forma de virtualizar un sistema operativo haciendo que múltiples cargas de trabajo puedan correr en una sencilla instancia de dicho sistema operativo, mientras que las máquinas virtuales todo el hardware es virtualizado para correr en diferentes sistemas operativos. Esto hace que los contenedores sean más ágiles, veloces y que tengan mayor portabilidad. Además de los siguientes beneficios: Requieren menos tiempo para iniciarse Mejor distribución de recursos Acceso directo al hardware Menos redundante Aparte son más sencillos de orquestar, con diferentes sistemas como Kubernetes, Rancher, Openshift o Docker-compose. Otra de las recomendaciones es usar un sistema de monitorización, si es posible el estándar Prometheus + Grafana. Requerimientos Los requerimientos han sido ya tratados en dicha sección en el pre-proyecto. Puedes visualizarlo aquí. Lo único a comentar sería con que voy a trabajar que sería: Lenovo Legion Y720 Debian 10 16 GB RAM Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz 8 procesadores con 4 cores cada uno 1 TB disco duro Instalaciones Aunque hablaremos más adelante de los tipos de instalaciones que hay, vamos a exponer de manera breve los diferentes tipos que hay: Ubuntu + Snap sudo apt-get install snapd sudo snap install rocketchat-server Una vez hecho esto, tendríamos desplegado en nuestro localhost Rocket.chat y podremos configurarlo. Snap actualiza de manera automática cuando hay una nueva version de Rocket.Chat y suele ser una opción más segura ya que tanto Rocket.Chat y sus dependencias están separadas del sistema. Despliegue en PaaS Las recomendadas serían SandStorm y Cloudron pero prácticamente se puede desplegar en cualquier entorno, desde Amazon Web Services hasta en Digital Ocean entre otros. Herramientas de automatización Ansible OpenShift Kubernetes + Helm Vagrant Instalación manual CentOS Debian RedHat Ubuntu Prácticamente, es posible instalar el servidor de Rocket.Chat en diferentes entornos. Contenedores Docker Hemos hablado anteriormente de esta opción y además, vamos a explicar detalladamente esta manera de instalación más adelante. Métodos no oficiales FreeBSD Windows 10 / Windows Server Kali OpenSUSE Los métodos anteriormente comentados en los otros puntos, están respaldados por Rocket.Chat. Pero es posible instalar el servidor en alguno de estos sistemas, pero no se puede asegurar que funcionen o que se actualicen las funcionalidades. Comentados todos los métodos de instalación, vamos a desarrollar nuestro ejercicio con contenedores Docker. Se ajustan bien a nuestro escenario y disponen de la portabilidad que buscamos. Ahora pasaremos al siguiente punto, que es la documentación. Instalación via systemd &amp;gt;</summary></entry><entry><title type="html">Sample Post</title><link href="/blog/sample-post" rel="alternate" type="text/html" title="Sample Post" /><published>2020-04-24T00:00:00+02:00</published><updated>2020-04-24T00:00:00+02:00</updated><id>/blog/sample-post</id><content type="html" xml:base="/blog/sample-post">&lt;p&gt;This post will show you how the content will look like in the post pages and how the headlines, quotes and quotes will be represented. Jekyll is mainly used to write simple markdown and after that it renders out a static pages, so you need to know the basics of writing markdown for that.
-For more information about writing markdown you can checkout the following markdown cheatsheets:&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://guides.github.com/features/mastering-markdown/&quot;&gt;Mastering Markdown&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://www.markdownguide.org/cheat-sheet/&quot;&gt;Markdown Guide&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.github.com/gfm/&quot;&gt;GitHub Flavored Markdown Spec&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;hr /&gt;
-
-&lt;h1 id=&quot;this-is-the-h1-text&quot;&gt;This is the h1 text&lt;/h1&gt;
-&lt;h2 id=&quot;this-is-the-h2-text&quot;&gt;This is the h2 text&lt;/h2&gt;
-&lt;h3 id=&quot;this-is-the-h3-text&quot;&gt;This is the h3 text&lt;/h3&gt;
-&lt;h4 id=&quot;this-is-the-h4-text&quot;&gt;This is the h4 text&lt;/h4&gt;
-&lt;h5 id=&quot;this-is-the-h5-text&quot;&gt;This is the h5 text&lt;/h5&gt;
-&lt;h6 id=&quot;this-is-the-h6-text&quot;&gt;This is the h6 text&lt;/h6&gt;
-
-&lt;p&gt;&lt;strong&gt;Bold Text in the post will look like:&lt;/strong&gt;&lt;br /&gt;
-&lt;strong&gt;This text is Bold&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Italic Text in the post will look like:&lt;/strong&gt;&lt;br /&gt;
-&lt;em&gt;This text is Italic&lt;/em&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Quotes on your post will look like this&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Codes on your post will look like this&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Link in the post will look like:&lt;/strong&gt;&lt;br /&gt;
-&lt;a href=&quot;#&quot;&gt;This is a link&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Bullet list in the post will look like:&lt;/strong&gt;&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;Item 1&lt;/li&gt;
-  &lt;li&gt;Item 2&lt;/li&gt;
-  &lt;li&gt;Item 3&lt;/li&gt;
-  &lt;li&gt;Item 4&lt;/li&gt;
-  &lt;li&gt;Item 5&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;Number list in the post will look like:&lt;/strong&gt;&lt;/p&gt;
-&lt;ol&gt;
-  &lt;li&gt;Item 1&lt;/li&gt;
-  &lt;li&gt;Item 2&lt;/li&gt;
-  &lt;li&gt;Item 3&lt;/li&gt;
-  &lt;li&gt;Item 4&lt;/li&gt;
-  &lt;li&gt;Item 5&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;&lt;strong&gt;Images in the post will look like:&lt;/strong&gt;&lt;br /&gt;
-&lt;img src=&quot;/WhatATheme/assets/images/1280x720%20Placeholder.png&quot; alt=&quot;Test Image&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Normal text in the post will look like&lt;/strong&gt;&lt;br /&gt;
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris id finibus nisl. Etiam in hendrerit est. Nulla non erat ac lectus interdum lobortis. Vestibulum at mi ex. Mauris nisl mi, venenatis et feugiat nec, finibus porttitor velit. Suspendisse tincidunt lobortis leo, quis tristique tellus iaculis quis. Donec eleifend pulvinar gravida. Proin non lorem eros. Donec sit amet finibus ex, eget vestibulum nunc. Ut ut enim id purus porttitor tristique. Vivamus tincidunt eleifend hendrerit. Proin metus felis, ultrices vel dui in, porta dapibus dui. Sed sagittis ex vitae dui tristique dignissim. Cras vel leo ipsum.&lt;/p&gt;
-
-&lt;p&gt;Aenean ac neque et risus mattis accumsan. Sed ac tellus molestie, lacinia ante sit amet, convallis felis. Maecenas aliquet lectus nec euismod auctor. Donec finibus pellentesque tortor, ac efficitur metus suscipit non. Proin diam orci, blandit quis malesuada ac, efficitur a nisl. Mauris eleifend consequat blandit. Sed egestas quam et orci gravida, non euismod metus scelerisque. Curabitur venenatis pellentesque erat commodo pharetra. Fusce id ante nec ipsum fringilla auctor. In justo quam, feugiat placerat eleifend dapibus, luctus et quam. Fusce facilisis erat ut odio convallis viverra et id mauris. Sed vehicula tempus consectetur. Aliquam pharetra, purus non egestas tristique, tellus massa fringilla est, id sagittis tellus urna non mauris. Suspendisse fringilla, velit nec blandit facilisis, ligula ante imperdiet est, et placerat magna sem quis tortor.&lt;/p&gt;
-
-&lt;p&gt;Vestibulum vitae fermentum velit, rhoncus egestas orci. Nulla at purus ut orci posuere vulputate. In eget leo diam. In congue in diam nec elementum. Suspendisse fringilla ante nulla, eu tristique orci ultrices eget. Aenean non lorem tellus. Vestibulum tempor metus sit amet tellus feugiat, sit amet consequat lacus ultricies.&lt;/p&gt;
-
-&lt;p&gt;Donec imperdiet, lectus eget congue cursus, dolor enim finibus risus, ut molestie lorem tellus non tortor. Donec quam nibh, molestie in dapibus et, efficitur non tortor. Morbi orci tellus, mollis vel mi vitae, auctor lobortis erat. Ut gravida velit eget ligula lacinia, id rhoncus tellus gravida. Maecenas laoreet rutrum consequat. Suspendisse sed nibh dui. Curabitur dictum euismod mollis. Sed egestas libero libero, eu accumsan augue placerat non. Nunc id condimentum orci. Mauris vitae sollicitudin quam.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Giphy Gifs will look like:&lt;/strong&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;iframe src=&quot;https://giphy.com/embed/ZqlvCTNHpqrio&quot; width=&quot;480&quot; height=&quot;259&quot; frameborder=&quot;0&quot; class=&quot;giphy-embed&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;
-&lt;p&gt;&lt;a href=&quot;https://giphy.com/gifs/laughing-despicable-me-minions-ZqlvCTNHpqrio&quot;&gt;via GIPHY&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;YouTUbe Videos will look like:&lt;/strong&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/jTPXwbDtIpA&quot; frameborder=&quot;0&quot; allow=&quot;accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;</content><author><name></name></author><category term="sample" /><category term="post" /><category term="test" /><summary type="html">This post will show you how the content will look like in the post pages and how the headlines, quotes and quotes will be represented. Jekyll is mainly used to write simple markdown and after that it renders out a static pages, so you need to know the basics of writing markdown for that. For more information about writing markdown you can checkout the following markdown cheatsheets: Mastering Markdown Markdown Guide GitHub Flavored Markdown Spec This is the h1 text This is the h2 text This is the h3 text This is the h4 text This is the h5 text This is the h6 text Bold Text in the post will look like: This text is Bold Italic Text in the post will look like: This text is Italic Quotes on your post will look like this Codes on your post will look like this Link in the post will look like: This is a link Bullet list in the post will look like: Item 1 Item 2 Item 3 Item 4 Item 5 Number list in the post will look like: Item 1 Item 2 Item 3 Item 4 Item 5 Images in the post will look like: Normal text in the post will look like Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris id finibus nisl. Etiam in hendrerit est. Nulla non erat ac lectus interdum lobortis. Vestibulum at mi ex. Mauris nisl mi, venenatis et feugiat nec, finibus porttitor velit. Suspendisse tincidunt lobortis leo, quis tristique tellus iaculis quis. Donec eleifend pulvinar gravida. Proin non lorem eros. Donec sit amet finibus ex, eget vestibulum nunc. Ut ut enim id purus porttitor tristique. Vivamus tincidunt eleifend hendrerit. Proin metus felis, ultrices vel dui in, porta dapibus dui. Sed sagittis ex vitae dui tristique dignissim. Cras vel leo ipsum. Aenean ac neque et risus mattis accumsan. Sed ac tellus molestie, lacinia ante sit amet, convallis felis. Maecenas aliquet lectus nec euismod auctor. Donec finibus pellentesque tortor, ac efficitur metus suscipit non. Proin diam orci, blandit quis malesuada ac, efficitur a nisl. Mauris eleifend consequat blandit. Sed egestas quam et orci gravida, non euismod metus scelerisque. Curabitur venenatis pellentesque erat commodo pharetra. Fusce id ante nec ipsum fringilla auctor. In justo quam, feugiat placerat eleifend dapibus, luctus et quam. Fusce facilisis erat ut odio convallis viverra et id mauris. Sed vehicula tempus consectetur. Aliquam pharetra, purus non egestas tristique, tellus massa fringilla est, id sagittis tellus urna non mauris. Suspendisse fringilla, velit nec blandit facilisis, ligula ante imperdiet est, et placerat magna sem quis tortor. Vestibulum vitae fermentum velit, rhoncus egestas orci. Nulla at purus ut orci posuere vulputate. In eget leo diam. In congue in diam nec elementum. Suspendisse fringilla ante nulla, eu tristique orci ultrices eget. Aenean non lorem tellus. Vestibulum tempor metus sit amet tellus feugiat, sit amet consequat lacus ultricies. Donec imperdiet, lectus eget congue cursus, dolor enim finibus risus, ut molestie lorem tellus non tortor. Donec quam nibh, molestie in dapibus et, efficitur non tortor. Morbi orci tellus, mollis vel mi vitae, auctor lobortis erat. Ut gravida velit eget ligula lacinia, id rhoncus tellus gravida. Maecenas laoreet rutrum consequat. Suspendisse sed nibh dui. Curabitur dictum euismod mollis. Sed egestas libero libero, eu accumsan augue placerat non. Nunc id condimentum orci. Mauris vitae sollicitudin quam. Giphy Gifs will look like: via GIPHY YouTUbe Videos will look like:</summary></entry></feed>
+&lt;/div&gt;</content><author><name></name></author><category term="Introduction" /><category term="Rocket.Chat" /><category term="Communication" /><summary type="html">Antes de empezar a hablar sobre Rocket.chat, voy a explicar un poco el porqué utilizar Rocket.Chat con contenedores. En principio, los contenedores y las máquinas virtuales difieren en varios aspectos pero el principal es que los contenedores ofrecen una forma de virtualizar un sistema operativo haciendo que múltiples cargas de trabajo puedan correr en una sencilla instancia de dicho sistema operativo, mientras que las máquinas virtuales todo el hardware es virtualizado para correr en diferentes sistemas operativos. Esto hace que los contenedores sean más ágiles, veloces y que tengan mayor portabilidad. Además de los siguientes beneficios: Requieren menos tiempo para iniciarse Mejor distribución de recursos Acceso directo al hardware Menos redundante Aparte son más sencillos de orquestar, con diferentes sistemas como Kubernetes, Rancher, Openshift o Docker-compose. Otra de las recomendaciones es usar un sistema de monitorización, si es posible el estándar Prometheus + Grafana. Requerimientos Los requerimientos han sido ya tratados en dicha sección en el pre-proyecto. Puedes visualizarlo aquí. Lo único a comentar sería con que voy a trabajar que sería: Lenovo Legion Y720 Debian 10 16 GB RAM Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz 8 procesadores con 4 cores cada uno 1 TB disco duro Instalaciones Aunque hablaremos más adelante de los tipos de instalaciones que hay, vamos a exponer de manera breve los diferentes tipos que hay: Ubuntu + Snap sudo apt-get install snapd sudo snap install rocketchat-server Una vez hecho esto, tendríamos desplegado en nuestro localhost Rocket.chat y podremos configurarlo. Snap actualiza de manera automática cuando hay una nueva version de Rocket.Chat y suele ser una opción más segura ya que tanto Rocket.Chat y sus dependencias están separadas del sistema. Despliegue en PaaS Las recomendadas serían SandStorm y Cloudron pero prácticamente se puede desplegar en cualquier entorno, desde Amazon Web Services hasta en Digital Ocean entre otros. Herramientas de automatización Ansible OpenShift Kubernetes + Helm Vagrant Instalación manual CentOS Debian RedHat Ubuntu Prácticamente, es posible instalar el servidor de Rocket.Chat en diferentes entornos. Contenedores Docker Hemos hablado anteriormente de esta opción y además, vamos a explicar detalladamente esta manera de instalación más adelante. Métodos no oficiales FreeBSD Windows 10 / Windows Server Kali OpenSUSE Los métodos anteriormente comentados en los otros puntos, están respaldados por Rocket.Chat. Pero es posible instalar el servidor en alguno de estos sistemas, pero no se puede asegurar que funcionen o que se actualicen las funcionalidades. Comentados todos los métodos de instalación, vamos a desarrollar nuestro ejercicio con contenedores Docker. Se ajustan bien a nuestro escenario y disponen de la portabilidad que buscamos. Ahora pasaremos al siguiente punto, que es la documentación. Instalación via systemd &amp;gt;</summary></entry></feed>

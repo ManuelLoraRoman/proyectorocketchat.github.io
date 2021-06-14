@@ -20,7 +20,7 @@ version: '2'
 
 services:
   rocketchat:
-    image: rocketchat/rocket.chat:latest
+    image: registry.rocket.chat/rocketchat/rocket.chat:latest
     command: >
       bash -c
         "for i in `seq 1 30`; do
@@ -34,19 +34,14 @@ services:
       - ./uploads:/app/uploads
     environment:
       - PORT=3000
-      - ROOT_URL=http://localhost:3000
+      - ROOT_URL=http://rocketchat:3000
       - MONGO_URL=mongodb://mongo:27017/rocketchat
       - MONGO_OPLOG_URL=mongodb://mongo:27017/local
       - MAIL_URL=smtp://smtp.email
-#       - HTTP_PROXY=http://proxy.domain.com
-#       - HTTPS_PROXY=http://proxy.domain.com
     depends_on:
       - mongo
     ports:
       - 3000:3000
-    labels:
-      - "traefik.backend=rocketchat"
-      - "traefik.frontend.rule=Host: your.domain.tld"
 
   mongo:
     image: mongo:4.0
@@ -54,12 +49,8 @@ services:
     volumes:
      - ./data/db:/data/db
      #- ./data/dump:/dump
-    command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
-    labels:
-      - "traefik.enable=false"
+    command: mongod --smallfiles --oplogSize 128 --replSet rs0 
 
-  # this container's job is just run the command to initialize the replica set.
-  # it will run the command and remove himself (it will not stay running)
   mongo-init-replica:
     image: mongo:4.0
     command: >
@@ -68,7 +59,7 @@ services:
           mongo mongo/rocketchat --eval \"
             rs.initiate({
               _id: 'rs0',
-              members: [ { _id: 0, host: 'localhost:27017' } ]})\" &&
+              members: [ { _id: 0, host: 'mongo:27017' } ]})\" &&
           s=$$? && break || s=$$?;
           echo \"Tried $$i times. Waiting 5 secs...\";
           sleep 5;
@@ -76,48 +67,44 @@ services:
     depends_on:
       - mongo
 
-  # hubot, the popular chatbot (add the bot user first and change the password before starting this imag$
+#  mongo-init-replica:
+#    image: mongo:4.0
+#    command: 'mongo mongo/rocketchat --eval "rs.initiate({ _id: ''rs0'', members: [ { _id: 0, host: ''localhost:27017'' } ]})"'
+#    depends_on:
+#      - mongo
+
+
+# hubot, the popular chatbot (add the bot user first and change the password before starting this image)
   hubot:
-    image: rocketchat/hubot-rocketchat:latest
-    restart: unless-stopped
+    image: rocketchat/hubot-rocketchat:v0.1.4
     environment:
       - ROCKETCHAT_URL=rocketchat:3000
-      - ROCKETCHAT_ROOM=GENERAL
-      - ROCKETCHAT_USER=bot
-      - ROCKETCHAT_PASSWORD=botpassword
+      - ROCKETCHAT_ROOM=
+      - ROCKETCHAT_USER=rocket.cat
+      - ROCKETCHAT_PASSWORD=password
+      - LISTEN_ON_ALL_PUBLIC=true
       - BOT_NAME=bot
-  # you can add more scripts as you'd like here, they need to be installable by npm
+      - RESPOND_TO_EDITED=true
+      - RESPOND_TO_DM=true
+# you can add more scripts as you'd like here, they need to be installable by npm
       - EXTERNAL_SCRIPTS=hubot-help,hubot-seen,hubot-links,hubot-diagnostics
-    depends_on:
-      - rocketchat
-    labels:
-      - "traefik.enable=false"
-    volumes:
-      - ./scripts:/home/hubot/scripts
-  # this is used to expose the hubot port for notifications on the host on port 3001, e.g. for hubot-jen$
+# this is used to expose the hubot port for notifications on the host on port 3001, e.g. for hubot-jenkins-notifier
     ports:
       - 3001:8080
 
-  #traefik:
-  #  image: traefik:latest
-  #  restart: unless-stopped
-  #  command: >
-  #    traefik
-  #     --docker
-  #     --acme=true
-  #     --acme.domains='your.domain.tld'
-  #     --acme.email='your@email.tld'
-  #     --acme.entrypoint=https
-  #     --acme.storagefile=acme.json
-  #     --defaultentrypoints=http
-  #     --defaultentrypoints=https
-  #     --entryPoints='Name:http Address::80 Redirect.EntryPoint:https'
-  #     --entryPoints='Name:https Address::443 TLS.Certificates:'
-  #  ports:
-  #    - 80:80
-  #    - 443:443
-  #  volumes:
-  #    - /var/run/docker.sock:/var/run/docker.sock
+  smtp:
+    image: namshi/smtp
+    environment:
+      - RELAY_DOMAINS=:example.com:example.de
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./certs/host.example.com.crt:/etc/nginx/cert.crt
+      - ./certs/host.example.com.key:/etc/nginx/cert.key
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 8066:443
 
 ```
 <br>
@@ -130,6 +117,8 @@ esté listo, para conectarse a él e inicializarlo.
 
 * Por último, inicia el servicio de Rocket.Chat, que al igual que el anterior servicio, esperará
 a que _mongo_ esté listo.
+
+* También iniciará el servicio de smtp y el servicio de nginx que funcionará como proxy inverso.
 
 Para iniciar el escenario que hemos montado, vamos a ejecutar el siguiente comando:
 
@@ -170,6 +159,9 @@ Y una vez en la página, podemos iniciar sesión de manera normal:
 <div align="center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/inicio-sesion.gif"/></div>
 
 <br>
+
+Todo este funcionamiento es si no hemos añadido el proxy inverso a nuestro docker-compose, pero en caso 
+de haberlo añadido, accederemos a la página mediante el server_name de nginx y el puerto correspondiente.
 
 A continuación, vamos a pasar al apartado de conexión de usuario.
 
