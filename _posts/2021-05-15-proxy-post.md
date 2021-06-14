@@ -170,8 +170,6 @@ con NGinx:
 Reiniciamos el servicio de apache y ya lo tendríamos funcionando.
 
 
-<div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/user3.png" width="800" /></div>
-
 <div>
 
  <span style="margin-right:980px;text-align:left;color:blue" onclick="document.location.href = 'certificate-post'; return false">< Cumplimiento de Rocket.Chat </span>
