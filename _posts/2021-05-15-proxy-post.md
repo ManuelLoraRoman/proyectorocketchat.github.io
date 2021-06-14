@@ -127,7 +127,47 @@ con NGinx:
 
  * Añadimos la clave privada a la ubicación */etc/ssl/private/chat.domain.com.key*
 
- * 
+ * Cambiamos los permisos a la clave privada *chmod 400 /etc/ssl/private/chat.domain.com.key*
+
+ * Añadimos el certificado a la siguiente ubicación: */etc/ssl/certs/chat.domain.com.crt*
+
+ * Añadimos el certificado de la entidad certificadora */etc/ssl/certs/intermediate.ca.pem*
+
+ * Y por último, modificamos el fichero */etc/apache2/sites-enabled/rocketchat.conf* y nos aseguramos
+ de usar nuestro actual hostname:
+
+```
+<VirtualHost *:443>
+    ServerAdmin it@domain.com
+    ServerName chat.domain.com
+
+    LogLevel info
+    ErrorLog /var/log/chat.domain.com_error.log
+    TransferLog /var/log/chat.domain.com_access.log
+
+    SSLEngine On
+    SSLCertificateFile /etc/ssl/certs/chat.domain.com.crt
+    SSLCertificateKeyFile /etc/ssl/private/chat.domain.com.key
+    SSLCertificateChainFile /etc/ssl/certs/intermediate.ca.pem
+
+    <Location />
+        Require all granted
+    </Location>
+
+    RewriteEngine On
+    RewriteCond %{HTTP:CONNECTION} Upgrade [NC]
+    RewriteCond %{HTTP:Upgrade} =websocket [NC]
+    RewriteRule /(.*)           ws://localhost:3000/$1 [P,L]
+    RewriteCond %{HTTP:Upgrade} !=websocket [NC]
+    RewriteRule /(.*)           http://localhost:3000/$1 [P,L]
+
+    ProxyPassReverse /          http://localhost:3000/
+</VirtualHost>
+```
+
+Reiniciamos el servicio de apache y ya lo tendríamos funcionando.
+
+<br>
 
 <div style="text-align: center"><img src="https://raw.githubusercontent.com/ManuelLoraRoman/proyectorocketchat.github.io/main/assets/images/user3.png" width="800" /></div>
 
